@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import date, datetime
+from datetime import datetime, timezone
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
@@ -8,16 +8,16 @@ from telegram.ext import (
 
 # ── Ayarlar ───────────────────────────────────────────────────────────────────
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
-ADMIN_ID = 123456789          # @userinfobot'tan öğren
+ADMIN_ID = 123456789
 BILDIRIM_SAATI = 8
 BILDIRIM_DAKIKA = 0
 VERI_DOSYASI = "veri.json"
 
-# ── SABİT SINAVLAR ────────────────────────────────────────────────────────────
+# ── SABİT SINAVLAR (sınav sabah 09:00'da başlıyor varsayımıyla) ───────────────
 SINAVLAR = {
-    "YKS TYT":  "2026-06-21",
-    "YKS AYT":  "2026-06-22",
-    "KPSS":     "2026-09-06",
+    "YKS TYT": "2026-06-21 10:05",
+    "YKS AYT": "2026-06-22 10:05",
+    "KPSS":    "2026-09-06 09:00",
 }
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -34,46 +34,51 @@ def veri_kaydet(veri: dict) -> None:
         json.dump(veri, f, ensure_ascii=False, indent=2)
 
 
-def kalan_gun(tarih_str: str) -> int:
-    return (date.fromisoformat(tarih_str) - date.today()).days
+def kalan_sure(tarih_str: str) -> str:
+    """Şu andan sınav tarihine kadar kalan gün, saat, dakikayı döndür."""
+    sinav_dt = datetime.strptime(tarih_str, "%Y-%m-%d %H:%M")
+    simdi = datetime.now()
+    fark = sinav_dt - simdi
+
+    if fark.total_seconds() <= 0:
+        return "✅ Bu sınav gerçekleşti."
+
+    toplam_saniye = int(fark.total_seconds())
+    gun = toplam_saniye // 86400
+    saat = (toplam_saniye % 86400) // 3600
+    dakika = (toplam_saniye % 3600) // 60
+
+    parcalar = []
+    if gun > 0:
+        parcalar.append(f"*{gun}* gün")
+    if saat > 0:
+        parcalar.append(f"*{saat}* saat")
+    if dakika > 0 or (gun == 0 and saat == 0):
+        parcalar.append(f"*{dakika}* dakika")
+
+    return "⏳ " + " " .join(parcalar) + " kaldı"
 
 
 def sinav_butonlari() -> InlineKeyboardMarkup:
-    """Her sınav için bir buton oluştur."""
     butonlar = []
     for ad in SINAVLAR:
         butonlar.append([InlineKeyboardButton(f"📌 {ad}", callback_data=f"sinav_{ad}")])
-    butonlar.append([InlineKeyboardButton("📋 Tüm Sınavlar", callback_data="sinav_hepsi")])
     return InlineKeyboardMarkup(butonlar)
 
 
 def sinav_detay(ad: str) -> str:
-    tarih = SINAVLAR[ad]
-    gun = kalan_gun(tarih)
-    if gun < 0:
-        durum = f"✅ Bu sınav {abs(gun)} gün önce gerçekleşti."
-    elif gun == 0:
-        durum = "🔥 Bu sınav *BUGÜN!*"
-    elif gun == 1:
-        durum = "⚠️ Bu sınav *yarın!*"
-    else:
-        durum = f"⏳ *{gun} gün* kaldı."
-    return f"📌 *{ad}*\n📅 Tarih: {tarih}\n{durum}"
+    tarih_str = SINAVLAR[ad]
+    tarih_gosterim = tarih_str.split(" ")[0]
+    sure = kalan_sure(tarih_str)
+    return f"📌 *{ad}*\n📅 Tarih: {tarih_gosterim}\n{sure}"
 
 
 def tum_sinavlar_metni() -> str:
-    satirlar = ["📅 *Tüm Sınav Geri Sayımları*\n"]
-    for ad, tarih in sorted(SINAVLAR.items(), key=lambda x: x[1]):
-        gun = kalan_gun(tarih)
-        if gun < 0:
-            durum = f"✅ Geçti ({abs(gun)} gün önce)"
-        elif gun == 0:
-            durum = "🔥 *BUGÜN!*"
-        elif gun == 1:
-            durum = "⚠️ *Yarın!*"
-        else:
-            durum = f"⏳ {gun} gün kaldı"
-        satirlar.append(f"• *{ad}* — {tarih}\n  {durum}")
+    satirlar = ["📅 *Sınav Geri Sayımları*\n"]
+    for ad, tarih_str in sorted(SINAVLAR.items(), key=lambda x: x[1]):
+        tarih_gosterim = tarih_str.split(" ")[0]
+        sure = kalan_sure(tarih_str)
+        satirlar.append(f"• *{ad}* — {tarih_gosterim}\n  {sure}")
     return "\n".join(satirlar)
 
 
@@ -134,21 +139,13 @@ async def buton_tiklandi(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     query = update.callback_query
     await query.answer()
 
-    data = query.data
-
-    if data == "sinav_hepsi":
-        metin = tum_sinavlar_metni()
-    elif data.startswith("sinav_"):
-        ad = data[len("sinav_"):]
-        if ad in SINAVLAR:
-            metin = sinav_detay(ad)
-        else:
-            metin = "❌ Sınav bulunamadı."
-    else:
+    ad = query.data[len("sinav_"):]
+    if ad not in SINAVLAR:
+        await query.edit_message_text("❌ Sınav bulunamadı.")
         return
 
     await query.edit_message_text(
-        text=metin,
+        text=sinav_detay(ad),
         parse_mode="Markdown",
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔙 Geri", callback_data="geri")]
