@@ -5,7 +5,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 # ── Ayarlar ───────────────────────────────────────────────────────────────────
-BOT_TOKEN = "BURAYA_BOT_TOKEN_YAZ"
+BOT_TOKEN = "8435197917:AAEP55fEPpp06FK_uWty1IE8mNpZgKT8VY0"
 ADMIN_ID = 123456789          # @userinfobot'tan öğren, sadece sen /istatistik yapabilirsin
 BILDIRIM_SAATI = 8
 BILDIRIM_DAKIKA = 0
