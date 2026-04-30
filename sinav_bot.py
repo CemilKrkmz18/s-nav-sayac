@@ -1,6 +1,7 @@
 import json
 import os
-from datetime import datetime, timezone
+import random
+from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
@@ -13,13 +14,26 @@ BILDIRIM_SAATI = 8
 BILDIRIM_DAKIKA = 0
 VERI_DOSYASI = "veri.json"
 
-# ── SABİT SINAVLAR (sınav sabah 09:00'da başlıyor varsayımıyla) ───────────────
+# ── SABİT SINAVLAR ────────────────────────────────────────────────────────────
 SINAVLAR = {
-    "YKS TYT": "2026-06-20 10:15",
-    "YKS AYT": "2026-06-21 10:15",
-    "KPSS":    "2026-09-06 09:00",
+    "YKS TYT": "2026-06-21 10:15",
+    "YKS AYT": "2026-06-22 10:15",
+    "KPSS":    "2026-09-06 10:15",
 }
-# ─────────────────────────────────────────────────────────────────────────────
+
+# ── MOTİVASYON SÖZLERİ ───────────────────────────────────────────────────────
+MOTIVASYON = [
+    "💪 Bugün çalıştığın her dakika, yarının başarısına bir adım!",
+    "🌟 Zorlu yollar güzel manzaralara çıkar. Devam et!",
+    "🔥 Vazgeçmek yok! Sen bunu başarabilirsin.",
+    "📚 Küçük adımlar bile seni hedefe yaklaştırır.",
+    "🎯 Odaklan, çalış, kazan. Sıra sende!",
+    "🚀 Her gün biraz daha iyi olmak yeterli. Harika gidiyorsun!",
+    "⭐ Emek asla boşa gitmez. Sonuç gelecek!",
+    "🌈 Bugünün yorgunluğu, yarının gururudur.",
+    "🏆 Kendine inan. En büyük rakibin dünkü halinden!",
+    "✨ Bir gün daha geride kaldı, hedefe bir adım daha yakınsın!",
+]
 
 
 def veri_yukle() -> dict:
@@ -35,7 +49,6 @@ def veri_kaydet(veri: dict) -> None:
 
 
 def kalan_sure(tarih_str: str) -> str:
-    """Şu andan sınav tarihine kadar kalan gün, saat, dakikayı döndür."""
     sinav_dt = datetime.strptime(tarih_str, "%Y-%m-%d %H:%M")
     simdi = datetime.now()
     fark = sinav_dt - simdi
@@ -56,7 +69,7 @@ def kalan_sure(tarih_str: str) -> str:
     if dakika > 0 or (gun == 0 and saat == 0):
         parcalar.append(f"*{dakika}* dakika")
 
-    return "⏳ " + " " .join(parcalar) + " kaldı"
+    return "⏳ " + " ".join(parcalar) + " kaldı"
 
 
 def sinav_butonlari() -> InlineKeyboardMarkup:
@@ -70,7 +83,13 @@ def sinav_detay(ad: str) -> str:
     tarih_str = SINAVLAR[ad]
     tarih_gosterim = tarih_str.split(" ")[0]
     sure = kalan_sure(tarih_str)
-    return f"📌 *{ad}*\n📅 Tarih: {tarih_gosterim}\n{sure}"
+    motivasyon = random.choice(MOTIVASYON)
+    return (
+        f"📌 *{ad}*\n"
+        f"📅 Tarih: {tarih_gosterim}\n"
+        f"{sure}\n\n"
+        f"{motivasyon}"
+    )
 
 
 def tum_sinavlar_metni() -> str:
@@ -165,7 +184,8 @@ async def geri_don(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # ── Sabah bildirimi ───────────────────────────────────────────────────────────
 async def sabah_bildirimi(context: ContextTypes.DEFAULT_TYPE) -> None:
     veri = veri_yukle()
-    mesaj = "🌅 *Günaydın!* İşte bugünün sınav durumu:\n\n" + tum_sinavlar_metni()
+    motivasyon = random.choice(MOTIVASYON)
+    mesaj = "🌅 *Günaydın!* İşte bugünün sınav durumu:\n\n" + tum_sinavlar_metni() + f"\n\n{motivasyon}"
     for chat_id in veri.get("aboneler", []):
         try:
             await context.bot.send_message(
