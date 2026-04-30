@@ -5,7 +5,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 # ── Ayarlar ───────────────────────────────────────────────────────────────────
-BOT_TOKEN = "8435197917:AAEP55fEPpp06FK_uWty1IE8mNpZgKT8VY0"
+BOT_TOKEN = os.environ.get(8435197917:AAEP55fEPpp06FK_uWty1IE8mNpZgKT8VY0")
 ADMIN_ID = 123456789          # @userinfobot'tan öğren, sadece sen /istatistik yapabilirsin
 BILDIRIM_SAATI = 8
 BILDIRIM_DAKIKA = 0
@@ -13,8 +13,9 @@ VERI_DOSYASI = "veri.json"
 
 # ── SABİT SINAVLAR — sadece buradan düzenlenir ────────────────────────────────
 SINAVLAR = {
-    "YKS":  "2025-06-14",
-    "KPSS": "2025-10-05",
+    "YKS TYT":  "2026-06-21",
+    "YKS AYT":  "2026-06-22",
+    "KPSS": "2026-09-06",
     # Yeni sınav eklemek için: "SınavAdı": "YYYY-MM-DD",
 }
 # ─────────────────────────────────────────────────────────────────────────────
