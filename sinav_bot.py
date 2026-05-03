@@ -16,9 +16,9 @@ VERI_DOSYASI = "veri.json"
 
 # ── SABİT SINAVLAR ────────────────────────────────────────────────────────────
 SINAVLAR = {
-    "YKS TYT": "2026-06-21 10:15",
-    "YKS AYT": "2026-06-22 10:15",
-    "KPSS":    "2026-09-06 10:15",
+    "YKS TYT": "2026-06-21 09:00",
+    "YKS AYT": "2026-06-22 09:00",
+    "KPSS":    "2026-09-06 09:00",
 }
 
 # ── MOTİVASYON SÖZLERİ ───────────────────────────────────────────────────────
@@ -36,6 +36,7 @@ MOTIVASYON = [
 ]
 
 
+# ── Yardımcılar ───────────────────────────────────────────────────────────────
 def veri_yukle() -> dict:
     if os.path.exists(VERI_DOSYASI):
         with open(VERI_DOSYASI, "r", encoding="utf-8") as f:
@@ -72,6 +73,10 @@ def kalan_sure(tarih_str: str) -> str:
     return "⏳ " + " ".join(parcalar) + " kaldı"
 
 
+def guncelleme_zamani() -> str:
+    return datetime.now().strftime("%H:%M:%S")
+
+
 def sinav_butonlari() -> InlineKeyboardMarkup:
     butonlar = []
     for ad in SINAVLAR:
@@ -79,17 +84,27 @@ def sinav_butonlari() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(butonlar)
 
 
-def sinav_detay(ad: str) -> str:
+def sinav_detay_metni(ad: str, motivasyon: str) -> str:
     tarih_str = SINAVLAR[ad]
     tarih_gosterim = tarih_str.split(" ")[0]
     sure = kalan_sure(tarih_str)
-    motivasyon = random.choice(MOTIVASYON)
+    guncellendi = guncelleme_zamani()
     return (
         f"📌 *{ad}*\n"
         f"📅 Tarih: {tarih_gosterim}\n"
         f"{sure}\n\n"
-        f"{motivasyon}"
+        f"{motivasyon}\n\n"
+        f"🔄 _Son güncelleme: {guncellendi}_"
     )
+
+
+def sinav_detay_butonlari(ad: str, motivasyon: str) -> InlineKeyboardMarkup:
+    # motivasyonu callback_data'ya sığdırmak için index kullanıyoruz
+    mot_index = MOTIVASYON.index(motivasyon) if motivasyon in MOTIVASYON else 0
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("🔄 Yenile", callback_data=f"yenile_{ad}_{mot_index}")],
+        [InlineKeyboardButton("🔙 Geri", callback_data="geri")]
+    ])
 
 
 def tum_sinavlar_metni() -> str:
@@ -163,12 +178,34 @@ async def buton_tiklandi(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await query.edit_message_text("❌ Sınav bulunamadı.")
         return
 
+    motivasyon = random.choice(MOTIVASYON)
     await query.edit_message_text(
-        text=sinav_detay(ad),
+        text=sinav_detay_metni(ad, motivasyon),
         parse_mode="Markdown",
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔙 Geri", callback_data="geri")]
-        ])
+        reply_markup=sinav_detay_butonlari(ad, motivasyon)
+    )
+
+
+async def yenile_tiklandi(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    await query.answer("🔄 Güncellendi!")
+
+    # callback_data: "yenile_YKS TYT_3" formatında
+    parca = query.data[len("yenile_"):]
+    # son _ den sonraki kısım index, öncesi sınav adı
+    son_alt_cizgi = parca.rfind("_")
+    ad = parca[:son_alt_cizgi]
+    mot_index = int(parca[son_alt_cizgi + 1:])
+
+    if ad not in SINAVLAR:
+        await query.edit_message_text("❌ Sınav bulunamadı.")
+        return
+
+    motivasyon = MOTIVASYON[mot_index]
+    await query.edit_message_text(
+        text=sinav_detay_metni(ad, motivasyon),
+        parse_mode="Markdown",
+        reply_markup=sinav_detay_butonlari(ad, motivasyon)
     )
 
 
@@ -208,6 +245,7 @@ def main() -> None:
     app.add_handler(CommandHandler("test", test_bildirim))
     app.add_handler(CommandHandler("istatistik", istatistik))
     app.add_handler(CallbackQueryHandler(geri_don, pattern="^geri$"))
+    app.add_handler(CallbackQueryHandler(yenile_tiklandi, pattern="^yenile_"))
     app.add_handler(CallbackQueryHandler(buton_tiklandi, pattern="^sinav_"))
 
     app.job_queue.run_daily(
@@ -221,3 +259,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+ 
