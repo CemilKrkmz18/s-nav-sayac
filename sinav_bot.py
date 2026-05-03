@@ -1,7 +1,7 @@
 import json
 import os
 import random
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
@@ -9,10 +9,17 @@ from telegram.ext import (
 
 # ── Ayarlar ───────────────────────────────────────────────────────────────────
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
-ADMIN_ID = 1110751204
+ADMIN_ID = 1110751204          # @userinfobot'tan öğrendiğin ID'yi buraya yaz
 BILDIRIM_SAATI = 8
 BILDIRIM_DAKIKA = 0
 VERI_DOSYASI = "veri.json"
+
+# ── Türkiye saat dilimi ───────────────────────────────────────────────────────
+TR = timezone(timedelta(hours=3))
+
+def simdi_tr() -> datetime:
+    """Türkiye saatiyle şu anki zamanı döndür."""
+    return datetime.now(TR).replace(tzinfo=None)
 
 # ── SABİT SINAVLAR ────────────────────────────────────────────────────────────
 SINAVLAR = {
@@ -105,8 +112,7 @@ def veri_kaydet(veri: dict) -> None:
 
 
 def gunun_ipucu() -> str:
-    """Günün sıra numarasına göre her sınav için bir ipucu seç."""
-    gun_no = datetime.now().timetuple().tm_yday  # yılın kaçıncı günü
+    gun_no = simdi_tr().timetuple().tm_yday
     satirlar = ["💡 *Günün Sınav Taktikleri*\n"]
     for sinav_adi, ipucu_listesi in IPUCLARI.items():
         ipucu = ipucu_listesi[gun_no % len(ipucu_listesi)]
@@ -116,7 +122,7 @@ def gunun_ipucu() -> str:
 
 def kalan_sure(tarih_str: str) -> str:
     sinav_dt = datetime.strptime(tarih_str, "%Y-%m-%d %H:%M")
-    simdi = datetime.now()
+    simdi = simdi_tr()
     fark = sinav_dt - simdi
 
     if fark.total_seconds() <= 0:
@@ -139,7 +145,7 @@ def kalan_sure(tarih_str: str) -> str:
 
 
 def guncelleme_zamani() -> str:
-    return datetime.now().strftime("%H:%M:%S")
+    return simdi_tr().strftime("%H:%M:%S")
 
 
 def sinav_butonlari() -> InlineKeyboardMarkup:
