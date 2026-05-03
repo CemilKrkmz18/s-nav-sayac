@@ -9,7 +9,7 @@ from telegram.ext import (
 
 # ── Ayarlar ───────────────────────────────────────────────────────────────────
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
-ADMIN_ID = 123456789
+ADMIN_ID = 1110751204
 BILDIRIM_SAATI = 8
 BILDIRIM_DAKIKA = 0
 VERI_DOSYASI = "veri.json"
