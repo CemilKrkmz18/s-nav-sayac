@@ -18,13 +18,12 @@ VERI_DOSYASI = "veri.json"
 TR = timezone(timedelta(hours=3))
 
 def simdi_tr() -> datetime:
-    """Türkiye saatiyle şu anki zamanı döndür."""
     return datetime.now(TR).replace(tzinfo=None)
 
 # ── SABİT SINAVLAR ────────────────────────────────────────────────────────────
 SINAVLAR = {
-    "YKS TYT": "2026-06-21 09:00",
-    "YKS AYT": "2026-06-22 09:00",
+    "YKS TYT": "2026-06-21 10:15",
+    "YKS AYT": "2026-06-22 10:15",
     "KPSS":    "2026-09-06 09:00",
 }
 
@@ -148,6 +147,12 @@ def guncelleme_zamani() -> str:
     return simdi_tr().strftime("%H:%M:%S")
 
 
+def kullanici_adi(user) -> str:
+    if user.full_name:
+        return user.full_name
+    return user.username or str(user.id)
+
+
 def sinav_butonlari() -> InlineKeyboardMarkup:
     butonlar = []
     for ad in SINAVLAR:
@@ -187,15 +192,40 @@ def tum_sinavlar_metni() -> str:
     return "\n".join(satirlar)
 
 
+# ── Admin bildirimi ───────────────────────────────────────────────────────────
+async def admin_bildir(context, mesaj: str) -> None:
+    try:
+        await context.bot.send_message(
+            chat_id=ADMIN_ID,
+            text=mesaj,
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        print(f"Admin bildirimi gönderilemedi: {e}")
+
+
 # ── Komutlar ──────────────────────────────────────────────────────────────────
 async def baslat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     veri = veri_yukle()
     chat_id = update.effective_chat.id
+    user = update.effective_user
+    ad = kullanici_adi(user)
+    username = f"@{user.username}" if user.username else "—"
+
     if chat_id not in veri["aboneler"]:
         veri["aboneler"].append(chat_id)
         veri_kaydet(veri)
         karsilama = "👋 *Hoş geldin!* Her sabah saat {:02d}:{:02d}'de bildirim alacaksın.\n\n".format(
             BILDIRIM_SAATI, BILDIRIM_DAKIKA
+        )
+        # Admin'e yeni kullanıcı bildirimi
+        await admin_bildir(context,
+            f"🟢 *Yeni kullanıcı katıldı!*\n"
+            f"👤 İsim: {ad}\n"
+            f"🔗 Kullanıcı adı: {username}\n"
+            f"🆔 ID: `{chat_id}`\n"
+            f"📊 Toplam abone: *{len(veri['aboneler'])}*\n"
+            f"🕐 Saat: {guncelleme_zamani()}"
         )
     else:
         karsilama = "✅ Zaten abonesin!\n\n"
@@ -217,10 +247,23 @@ async def liste(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def iptal(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     veri = veri_yukle()
     chat_id = update.effective_chat.id
+    user = update.effective_user
+    ad = kullanici_adi(user)
+    username = f"@{user.username}" if user.username else "—"
+
     if chat_id in veri["aboneler"]:
         veri["aboneler"].remove(chat_id)
         veri_kaydet(veri)
         await update.message.reply_text("🔕 Bildirimler durduruldu. Tekrar almak için /start yaz.")
+        # Admin'e çıkış bildirimi
+        await admin_bildir(context,
+            f"🔴 *Kullanıcı ayrıldı!*\n"
+            f"👤 İsim: {ad}\n"
+            f"🔗 Kullanıcı adı: {username}\n"
+            f"🆔 ID: `{chat_id}`\n"
+            f"📊 Kalan abone: *{len(veri['aboneler'])}*\n"
+            f"🕐 Saat: {guncelleme_zamani()}"
+        )
     else:
         await update.message.reply_text("Zaten bildirim almıyordun.")
 
@@ -310,6 +353,7 @@ async def sabah_bildirimi(context: ContextTypes.DEFAULT_TYPE) -> None:
         + "─────────────────\n"
         + gunun_ipucu()
     )
+    basarili = 0
     for chat_id in veri.get("aboneler", []):
         try:
             await context.bot.send_message(
@@ -318,8 +362,17 @@ async def sabah_bildirimi(context: ContextTypes.DEFAULT_TYPE) -> None:
                 parse_mode="Markdown",
                 reply_markup=sinav_butonlari()
             )
+            basarili += 1
         except Exception as e:
             print(f"Gönderilemedi (chat_id={chat_id}): {e}")
+
+    # Admin'e sabah bildirimi özeti
+    await admin_bildir(context,
+        f"📬 *Sabah bildirimi gönderildi!*\n"
+        f"✅ Başarılı: *{basarili}* kişi\n"
+        f"👥 Toplam abone: *{len(veri['aboneler'])}*\n"
+        f"🕐 Saat: {guncelleme_zamani()}"
+    )
 
 
 # ── Ana fonksiyon ─────────────────────────────────────────────────────────────
@@ -347,3 +400,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+ 
