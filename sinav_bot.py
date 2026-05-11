@@ -151,7 +151,28 @@ def veri_yukle():
     if os.path.exists(VERI_DOSYASI):
         with open(VERI_DOSYASI, "r", encoding="utf-8") as f:
             return json.load(f)
-    return {"aboneler": []}
+    return {"aboneler": [], "denemeler": {}}
+
+def deneme_kaydet(chat_id: int, tur: str, netler: dict, puan: float, toplam_net: float):
+    veri = veri_yukle()
+    if "denemeler" not in veri:
+        veri["denemeler"] = {}
+    key = str(chat_id)
+    if key not in veri["denemeler"]:
+        veri["denemeler"][key] = []
+    veri["denemeler"][key].append({
+        "tarih": simdi_tr().strftime("%Y-%m-%d %H:%M"),
+        "tur": tur,
+        "netler": netler,
+        "puan": puan,
+        "toplam_net": round(toplam_net, 2),
+    })
+    veri["denemeler"][key] = veri["denemeler"][key][-20:]
+    veri_kaydet(veri)
+
+def kullanici_denemeleri(chat_id: int) -> list:
+    veri = veri_yukle()
+    return veri.get("denemeler", {}).get(str(chat_id), [])
 
 def veri_kaydet(veri):
     with open(VERI_DOSYASI, "w", encoding="utf-8") as f:
@@ -528,6 +549,40 @@ async def hesaplama_sonuc(update: Update, context: ContextTypes.DEFAULT_TYPE):
             mesaj += f"\n📋 OBP Katkısı: `+{obp_k}`\n"
         mesaj += f"\n_⚠️ Tahmindir, resmi değildir._"
 
+    # ── Deneme kaydet ve karşılaştır ──
+    chat_id = update.effective_chat.id
+    if tur == "TYT":
+        kayit_puan = puan
+        kayit_net = toplam
+        kayit_netler = {b: round(n, 2) for b, n in tyt_n.items()}
+    else:
+        kayit_puan = puanlar.get("SAY", puanlar.get("EA", 0))
+        kayit_net = ayt_top
+        kayit_netler = {b: round(n, 2) for b, n in {**tyt_n, **ayt_n}.items()}
+
+    gecmis = kullanici_denemeleri(chat_id)
+    onceki = [d for d in gecmis if d["tur"] == tur]
+
+    # Rekor kontrolü
+    if onceki:
+        en_iyi = max(onceki, key=lambda x: x["toplam_net"])
+        if kayit_net > en_iyi["toplam_net"]:
+            mesaj += f"\n\n🏅 *Yeni rekor! Önceki: {en_iyi['toplam_net']:.2f} net*"
+
+    # Geçen haftayla karşılaştır
+    bir_hafta_once = simdi_tr().replace(day=max(1, simdi_tr().day - 7))
+    gecen_hafta = [d for d in onceki if datetime.strptime(d["tarih"], "%Y-%m-%d %H:%M") >= bir_hafta_once]
+    if gecen_hafta:
+        gecen_net = sum(d["toplam_net"] for d in gecen_hafta) / len(gecen_hafta)
+        fark = kayit_net - gecen_net
+        if fark > 0:
+            mesaj += f"\n📈 Geçen haftaya göre *+{fark:.1f} net* artış!"
+        elif fark < 0:
+            mesaj += f"\n📉 Geçen haftaya göre *{fark:.1f} net* düşüş."
+
+    deneme_kaydet(chat_id, tur, kayit_netler, kayit_puan, kayit_net)
+    mesaj += f"\n\n_/gecmis → geçmiş denemeler | /analiz → gelişim_"
+
     await update.message.reply_text(
         mesaj, parse_mode="Markdown",
         reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Ana Menü", callback_data="geri")]])
@@ -535,7 +590,84 @@ async def hesaplama_sonuc(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
     return ConversationHandler.END
 
-async def hesap_iptal(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def gecmis(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    denemeler = kullanici_denemeleri(chat_id)
+    if not denemeler:
+        await update.message.reply_text(
+            "📭 Henüz kayıtlı deneme yok.\n🧮 Puan hesapla butonundan deneme gir!",
+            reply_markup=sinav_butonlari()
+        )
+        return
+    son5 = denemeler[-5:][::-1]
+    mesaj = "📋 *Son Denemeler*\n\n"
+    for i, d in enumerate(son5, 1):
+        mesaj += f"*{i}.* {d['tarih']} — {d['tur']}\n"
+        mesaj += f"   Net: `{d['toplam_net']}` | Puan: `{d['puan']}`\n\n"
+    await update.message.reply_text(mesaj, parse_mode="Markdown",
+        reply_markup=sinav_butonlari())
+
+async def analiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    denemeler = kullanici_denemeleri(chat_id)
+    if len(denemeler) < 2:
+        await update.message.reply_text(
+            "📊 Analiz için en az 2 deneme gerekli!\n🧮 Puan hesapla butonundan deneme gir.",
+            reply_markup=sinav_butonlari()
+        )
+        return
+
+    mesaj = "📊 *Gelişim Analizi*\n\n"
+
+    # TYT ve AYT ayrı analiz
+    for tur in ["TYT", "AYT"]:
+        tur_denemeleri = [d for d in denemeler if d["tur"] == tur]
+        if len(tur_denemeleri) < 2:
+            continue
+
+        mesaj += f"*{tur} Analizi ({len(tur_denemeleri)} deneme):*\n"
+
+        # En iyi ve en kötü
+        en_iyi = max(tur_denemeleri, key=lambda x: x["toplam_net"])
+        en_kotu = min(tur_denemeleri, key=lambda x: x["toplam_net"])
+        mesaj += f"🏅 En iyi: `{en_iyi['toplam_net']}` net ({en_iyi['tarih'][:10]})\n"
+        mesaj += f"📉 En düşük: `{en_kotu['toplam_net']}` net ({en_kotu['tarih'][:10]})\n"
+
+        # Son 3 ortalama vs önceki 3
+        if len(tur_denemeleri) >= 4:
+            son3 = tur_denemeleri[-3:]
+            onceki3 = tur_denemeleri[-6:-3] if len(tur_denemeleri) >= 6 else tur_denemeleri[:-3]
+            son3_ort = sum(d["toplam_net"] for d in son3) / len(son3)
+            onceki3_ort = sum(d["toplam_net"] for d in onceki3) / len(onceki3)
+            fark = son3_ort - onceki3_ort
+            trend = f"📈 +{fark:.1f}" if fark > 0 else f"📉 {fark:.1f}"
+            mesaj += f"Trend: {trend} net (son 3 ortalama)\n"
+
+        # Zayıf bölüm analizi (son 3 deneme)
+        son3_d = tur_denemeleri[-3:]
+        bolum_ortalamalari = {}
+        for d in son3_d:
+            for bolum, net_val in d.get("netler", {}).items():
+                if bolum not in bolum_ortalamalari:
+                    bolum_ortalamalari[bolum] = []
+                bolum_ortalamalari[bolum].append(net_val)
+
+        if bolum_ortalamalari:
+            # Soru sayısına göre normalize et
+            soru_sayilari = dict(TYT_BOLUMLER + AYT_BOLUMLER)
+            normalize = {}
+            for b, vals in bolum_ortalamalari.items():
+                ort = sum(vals) / len(vals)
+                maks = soru_sayilari.get(b, 40)
+                normalize[b] = ort / maks  # yüzde doluluk
+
+            en_zayif = min(normalize, key=normalize.get)
+            mesaj += f"⚠️ Zayıf bölüm: *{en_zayif}* (bu hafta önceliklendir!)\n"
+
+        mesaj += "\n"
+
+    await update.message.reply_text(mesaj, parse_mode="Markdown",
+        reply_markup=sinav_butonlari())
     context.user_data.clear()
     await update.message.reply_text("❌ İptal edildi.", reply_markup=sinav_butonlari())
     return ConversationHandler.END
@@ -583,6 +715,8 @@ def main():
     app.add_handler(CommandHandler("iptal", bildirim_iptal))
     app.add_handler(CommandHandler("test", test_bildirim))
     app.add_handler(CommandHandler("istatistik", istatistik))
+    app.add_handler(CommandHandler("gecmis", gecmis))
+    app.add_handler(CommandHandler("analiz", analiz))
     app.add_handler(puan_conv)
     app.add_handler(CallbackQueryHandler(puan_menu, pattern="^puan_menu$"))
     app.add_handler(CallbackQueryHandler(geri_don, pattern="^geri$"))
