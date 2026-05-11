@@ -365,12 +365,16 @@ async def hesap_sinav_sec(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "sinav_turu": tur,
         "bolum_index": 0,
         "netler": {},
-        "bolumler": TYT_BOLUMLER if tur == "TYT" else TYT_BOLUMLER + AYT_BOLUMLER
+        # AYT için TYT ve AYT bölümleri ayrı tutulur
+        "tyt_bolumler": TYT_BOLUMLER,
+        "ayt_bolumler": AYT_BOLUMLER,
+        "asama": "TYT",  # hangi aşamada olduğumuzu tutar
     })
-    b, s = context.user_data["bolumler"][0]
+    b, s = TYT_BOLUMLER[0]
     await query.edit_message_text(
         f"📝 *{tur} Hesaplama*\n\n"
-        f"1/{len(context.user_data['bolumler'])}: *{b}* ({s} soru)\n\n"
+        f"{'📋 Önce TYT bölümlerini gir:' if tur == 'AYT' else ''}\n"
+        f"TYT 1/{len(TYT_BOLUMLER)}: *{b}* ({s} soru)\n\n"
         f"Doğru yanlış gir: `25 5`",
         parse_mode="Markdown"
     )
@@ -385,8 +389,16 @@ async def bolum_gir(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Format: `25 5`", parse_mode="Markdown")
         return BOLUM_GIR
 
-    bolumler = context.user_data["bolumler"]
+    tur = context.user_data["sinav_turu"]
+    asama = context.user_data["asama"]
     i = context.user_data["bolum_index"]
+
+    # Hangi bölüm listesindeyiz
+    if asama == "TYT":
+        bolumler = context.user_data["tyt_bolumler"]
+    else:
+        bolumler = context.user_data["ayt_bolumler"]
+
     b, s = bolumler[i]
 
     if d + y > s:
@@ -396,17 +408,39 @@ async def bolum_gir(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["netler"][b] = net(d, y)
     context.user_data["bolum_index"] += 1
 
-    if context.user_data["bolum_index"] < len(bolumler):
-        nb, ns = bolumler[context.user_data["bolum_index"]]
+    # TYT bölümleri bitti, AYT'ye geçiş var mı?
+    if asama == "TYT" and context.user_data["bolum_index"] >= len(context.user_data["tyt_bolumler"]):
+        if tur == "AYT":
+            # AYT bölümlerine geç
+            context.user_data["asama"] = "AYT"
+            context.user_data["bolum_index"] = 0
+            nb, ns = context.user_data["ayt_bolumler"][0]
+            await update.message.reply_text(
+                f"✅ *{b}*: {context.user_data['netler'][b]:.2f} net\n\n"
+                f"✅ TYT bölümleri tamamlandı!\n\n"
+                f"📋 Şimdi AYT bölümlerini gir:\n"
+                f"AYT 1/{len(context.user_data['ayt_bolumler'])}: *{nb}* ({ns} soru)\n\n"
+                f"Doğru yanlış: `25 5`",
+                parse_mode="Markdown"
+            )
+            return BOLUM_GIR
+        else:
+            # Sadece TYT — OBP'ye geç
+            await update.message.reply_text(
+                f"✅ *{b}*: {context.user_data['netler'][b]:.2f} net\n\n"
+                "✅ Tüm bölümler tamamlandı!\n\n"
+                "📊 *OBP (Diploma Notu) gir:*\n"
+                "• Diploma notu: `85` (50-100 arası)\n"
+                "• Direkt OBP: `425` (250-500 arası)\n"
+                "• OBP'siz hesapla: `0`",
+                parse_mode="Markdown"
+            )
+            return OBP_GIR
+
+    # AYT bölümleri de bitti
+    if asama == "AYT" and context.user_data["bolum_index"] >= len(context.user_data["ayt_bolumler"]):
         await update.message.reply_text(
             f"✅ *{b}*: {context.user_data['netler'][b]:.2f} net\n\n"
-            f"{context.user_data['bolum_index']+1}/{len(bolumler)}: *{nb}* ({ns} soru)\n\n"
-            f"Doğru yanlış: `25 5`",
-            parse_mode="Markdown"
-        )
-        return BOLUM_GIR
-    else:
-        await update.message.reply_text(
             "✅ Tüm bölümler tamamlandı!\n\n"
             "📊 *OBP (Diploma Notu) gir:*\n"
             "• Diploma notu: `85` (50-100 arası)\n"
@@ -415,6 +449,17 @@ async def bolum_gir(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="Markdown"
         )
         return OBP_GIR
+
+    # Sonraki bölümü göster
+    nb, ns = bolumler[context.user_data["bolum_index"]]
+    etiket = "TYT" if asama == "TYT" else "AYT"
+    await update.message.reply_text(
+        f"✅ *{b}*: {context.user_data['netler'][b]:.2f} net\n\n"
+        f"{etiket} {context.user_data['bolum_index']+1}/{len(bolumler)}: *{nb}* ({ns} soru)\n\n"
+        f"Doğru yanlış: `25 5`",
+        parse_mode="Markdown"
+    )
+    return BOLUM_GIR
 
 async def obp_gir(update: Update, context: ContextTypes.DEFAULT_TYPE):
     metin = update.message.text.strip()
