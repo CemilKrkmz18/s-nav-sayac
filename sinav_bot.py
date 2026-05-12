@@ -161,6 +161,155 @@ IPUCLARI = {
     ],
 }
 
+# ── Konu Listesi ─────────────────────────────────────────────────────────────
+KONULAR = {
+    "TYT": {
+        "Türkçe": [
+            "Sözcükte Anlam", "Cümlede Anlam", "Paragraf", "Ses Bilgisi",
+            "Yazım Kuralları", "Noktalama İşaretleri", "Sözcük Türleri",
+            "Fiilimsiler", "Cümle Türleri", "Anlatım Bozuklukları",
+            "Dil Bilgisi (Genel)", "Sözcük Yapısı",
+        ],
+        "Temel Matematik": [
+            "Sayı Basamakları", "Bölme-Bölünebilme", "EBOB-EKOK",
+            "Rasyonel Sayılar", "Üslü Sayılar", "Köklü Sayılar",
+            "Çarpanlara Ayırma", "Denklem Çözme", "Eşitsizlikler",
+            "Oran-Orantı", "Problemler (Yaş, İşçi, Havuz, Hız)",
+            "Yüzde-Faiz", "Kümeler", "Mantık", "Fonksiyonlar (Temel)",
+            "Permütasyon-Kombinasyon", "Olasılık", "Veri Analizi (İstatistik)",
+        ],
+        "Fen Bilimleri": [
+            "Hücre (Yapı ve Organeller)", "Canlıların Sınıflandırılması",
+            "Fotosentez ve Solunum", "Sinir Sistemi", "Endokrin Sistem",
+            "Hareket ve Kuvvet", "Enerji (İş-Güç)", "Dalgalar",
+            "Elektrik (Temel)", "Madde ve Özellikleri",
+            "Asit-Baz", "Karışımlar", "Kimyasal Tepkimeler (Temel)",
+        ],
+        "Sosyal Bilimler": [
+            "Tarih Öncesi Dönemler", "İlk Uygarlıklar", "İslam Tarihi",
+            "Osmanlı Kuruluş-Yükseliş", "Osmanlı Duraklama-Gerileme",
+            "Kurtuluş Savaşı", "Atatürk İlke ve İnkılapları",
+            "Türkiye Coğrafyası (Genel)", "İklim ve Bitki Örtüsü",
+            "Nüfus ve Yerleşme", "Ekonomik Coğrafya",
+            "Felsefe'ye Giriş", "Psikoloji'ye Giriş", "Sosyoloji'ye Giriş",
+            "Anayasa (Temel)", "Vatandaşlık Bilgisi",
+        ],
+    },
+    "AYT": {
+        "Matematik": [
+            "Fonksiyonlar", "Logaritma", "Dizi ve Seriler",
+            "Limit ve Süreklilik", "Türev", "İntegral",
+            "Karmaşık Sayılar", "Matris ve Determinant",
+            "Analitik Geometri (Doğru)", "Analitik Geometri (Çember)",
+            "Konikler (Elips, Parabol, Hiperbol)", "Vektörler",
+            "Permütasyon-Kombinasyon (İleri)", "Olasılık (İleri)",
+            "İstatistik (İleri)",
+        ],
+        "Fizik": [
+            "Vektörler", "Hareket (Kinematik)", "Dinamik (Newton Yasaları)",
+            "Enerji ve Momentum", "Dairesel Hareket", "Basit Harmonik Hareket",
+            "Dalgalar ve Ses", "Optik (Geometrik)", "Elektrostatik",
+            "Manyetizma", "Elektromanyetik İndüksiyon", "Modern Fizik (Temel)",
+            "Atom ve Çekirdek Fiziği",
+        ],
+        "Kimya": [
+            "Atom Yapısı ve Periyodik Tablo", "Kimyasal Bağlar",
+            "Kimyasal Tepkimeler ve Denkleştirme", "Mol Kavramı",
+            "Asitler ve Bazlar (İleri)", "Çözeltiler",
+            "Kimyasal Denge", "Elektrokimya",
+            "Organik Kimya (Hidrokarbonlar)", "Organik Kimya (Fonksiyonel Gruplar)",
+            "Termokimya",
+        ],
+        "Biyoloji": [
+            "Hücre Bölünmesi (Mitoz-Mayoz)", "Kalıtım (Mendel Genetiği)",
+            "Moleküler Biyoloji (DNA-RNA)", "Biyoteknoloji",
+            "Sinir ve Duyu Organları", "Hormonlar ve Üreme",
+            "Ekosistem ve Çevre", "Evrim",
+            "Bitkisel Dokular", "Hayvansal Dokular",
+        ],
+        "Edebiyat": [
+            "Divan Edebiyatı (Nazım Biçimleri)", "Halk Edebiyatı",
+            "Tanzimat Edebiyatı (1. Dönem)", "Tanzimat Edebiyatı (2. Dönem)",
+            "Servet-i Fünun Edebiyatı", "Fecr-i Ati",
+            "Milli Edebiyat", "Cumhuriyet Dönemi Edebiyatı",
+            "Roman ve Hikaye Türleri", "Şiir Bilgisi (Aruz-Hece)",
+            "Anlatım Türleri (Makale, Deneme, Fıkra...)",
+        ],
+        "Tarih-1": [
+            "Osmanlı Siyasi Tarihi (Kuruluş-Yükseliş)", "Osmanlı Kültür ve Medeniyeti",
+            "Duraklama ve Gerileme Dönemi", "Islahat Hareketleri",
+            "XIX. yy Osmanlı (Tanzimat)", "Osmanlı-Rus Savaşları",
+            "I. Dünya Savaşı", "Kurtuluş Savaşı Hazırlık",
+        ],
+        "Coğrafya-1": [
+            "Türkiye'nin Konumu", "Yer Şekilleri", "İklim Özellikleri",
+            "Su Kaynakları", "Toprak ve Bitki Örtüsü",
+            "Nüfus (Dağılış-Göç)", "Yerleşme Coğrafyası",
+        ],
+        "Tarih-2": [
+            "Kurtuluş Savaşı (Siyasi)", "TBMM'nin Açılması",
+            "Lozan Antlaşması", "Atatürk İnkılapları",
+            "İki Savaş Arası Dönem", "II. Dünya Savaşı",
+            "Soğuk Savaş", "Yakın Dönem Türkiye Tarihi",
+        ],
+        "Coğrafya-2": [
+            "Dünya'nın Şekli ve Hareketleri", "İklim Tipleri (Dünya)",
+            "Levha Tektoniği", "Nüfus Coğrafyası (Dünya)",
+            "Ekonomik Faaliyetler", "Küresel Sorunlar (Çevre)",
+            "Bölgeler Coğrafyası",
+        ],
+        "Felsefe Grubu": [
+            "Felsefeye Giriş", "Bilgi Felsefesi (Epistemoloji)",
+            "Varlık Felsefesi (Ontoloji)", "Ahlak Felsefesi (Etik)",
+            "Siyaset Felsefesi", "Sanat Felsefesi (Estetik)",
+            "Din Felsefesi", "Mantık",
+            "Psikoloji (Davranış ve Öğrenme)", "Sosyoloji (Toplum ve Kültür)",
+        ],
+        "DKAB": [
+            "Kur'an-ı Kerim", "Hz. Muhammed'in Hayatı",
+            "İslam'ın Temel Kaynakları", "İbadetler",
+            "Ahlak ve Değerler", "İslam Düşüncesinde Yorumlar",
+            "Din ve Laiklik", "Diğer Dinler (Hristiyanlık, Yahudilik)",
+        ],
+    },
+    "KPSS": {
+        "Türkçe": [
+            "Sözcükte Anlam", "Cümlede Anlam", "Paragraf",
+            "Dil Bilgisi (Sözcük Türleri)", "Fiilimsiler",
+            "Cümle Türleri", "Anlatım Bozuklukları",
+            "Yazım ve Noktalama",
+        ],
+        "Matematik": [
+            "Temel Aritmetik (Sayılar)", "Oran-Orantı", "Problemler",
+            "Yüzde-Faiz", "Küme İşlemleri", "Olasılık (Temel)",
+            "Veri Yorumlama",
+        ],
+        "Tarih": [
+            "Osmanlı Tarihi (Özet)", "Kurtuluş Savaşı",
+            "Atatürk İnkılapları ve İlkeleri",
+            "Türkiye Cumhuriyeti Tarihi",
+            "Yakın Dönem Türk Tarihi",
+        ],
+        "Coğrafya": [
+            "Türkiye'nin Coğrafi Özellikleri", "İklim ve Bitki Örtüsü",
+            "Nüfus ve Yerleşme", "Ekonomik Coğrafya",
+            "Dünya Coğrafyası (Özet)",
+        ],
+        "Anayasa & Vatandaşlık": [
+            "Anayasanın Temel Hükümleri", "Temel Hak ve Özgürlükler",
+            "Devletin Temel Organları (TBMM, Cumhurbaşkanı)",
+            "Yargı Organları", "Yerel Yönetimler",
+            "Seçim Sistemi", "Vatandaşlık Hukuku (Temel)",
+        ],
+        "Eğitim Bilimleri": [
+            "Gelişim Psikolojisi", "Öğrenme Kuramları",
+            "Öğretim İlke ve Yöntemleri", "Ölçme ve Değerlendirme",
+            "Program Geliştirme", "Rehberlik",
+            "Sınıf Yönetimi",
+        ],
+    },
+}
+
 # ── Veri işlemleri ────────────────────────────────────────────────────────────
 def veri_yukle():
     if os.path.exists(VERI_DOSYASI):
@@ -285,6 +434,7 @@ def sinav_butonlari():
     b = [[InlineKeyboardButton(f"📌 {ad}", callback_data=f"sinav_{ad}")] for ad in SINAVLAR]
     b.append([InlineKeyboardButton("💡 Günün Taktikleri", callback_data="ipucu")])
     b.append([InlineKeyboardButton("🧮 Puan Hesapla", callback_data="puan_menu")])
+    b.append([InlineKeyboardButton("📚 Konu Listesi", callback_data="konu_menu")])
     b.append([InlineKeyboardButton("⏱️ Kronometre", callback_data="kronometre_menu")])
     return InlineKeyboardMarkup(b)
 
@@ -918,6 +1068,86 @@ async def krono_komutu(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chat_id=chat_id,
         )
 
+# ── Konu Listesi handler'ları ─────────────────────────────────────────────────
+async def konu_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Konu listesi ana menüsü — sınav seç."""
+    query = update.callback_query
+    await query.answer()
+    butonlar = [
+        [InlineKeyboardButton("📝 TYT", callback_data="konu_sinav_TYT")],
+        [InlineKeyboardButton("📝 AYT", callback_data="konu_sinav_AYT")],
+        [InlineKeyboardButton("📝 KPSS", callback_data="konu_sinav_KPSS")],
+        [InlineKeyboardButton("🔙 Geri", callback_data="geri")],
+    ]
+    await query.edit_message_text(
+        "📚 *Konu Listesi*\n\nHangi sınav için?",
+        parse_mode="Markdown",
+        reply_markup=InlineKeyboardMarkup(butonlar),
+    )
+
+async def konu_sinav_sec(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Sınav seçildi — bölüm listesi göster."""
+    query = update.callback_query
+    await query.answer()
+    sinav = query.data.replace("konu_sinav_", "")
+    bolumler = list(KONULAR.get(sinav, {}).keys())
+    butonlar = [
+        [InlineKeyboardButton(f"📖 {b}", callback_data=f"konu_bolum_{sinav}_{b}")]
+        for b in bolumler
+    ]
+    butonlar.append([InlineKeyboardButton("🔙 Geri", callback_data="konu_menu")])
+    await query.edit_message_text(
+        f"📚 *{sinav} — Bölümler*\n\nHangi bölümün konularını görmek istersin?",
+        parse_mode="Markdown",
+        reply_markup=InlineKeyboardMarkup(butonlar),
+    )
+
+async def konu_bolum_sec(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Bölüm seçildi — konuları listele."""
+    query = update.callback_query
+    await query.answer()
+    # callback_data formatı: konu_bolum_TYT_Türkçe
+    parca = query.data[len("konu_bolum_"):]
+    # sinav adı TYT/AYT/KPSS, geri kalan bölüm adı
+    for sinav in KONULAR:
+        if parca.startswith(sinav + "_"):
+            bolum = parca[len(sinav) + 1:]
+            break
+    else:
+        await query.edit_message_text("❌ Bölüm bulunamadı.")
+        return
+
+    konular = KONULAR.get(sinav, {}).get(bolum, [])
+    metin = f"📖 *{sinav} — {bolum}*\n\n"
+    for i, konu in enumerate(konular, 1):
+        metin += f"{i}. {konu}\n"
+    metin += f"\n_Toplam {len(konular)} konu_"
+
+    await query.edit_message_text(
+        metin,
+        parse_mode="Markdown",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔙 Bölümlere Dön", callback_data=f"konu_sinav_{sinav}")],
+            [InlineKeyboardButton("🏠 Ana Menü", callback_data="geri")],
+        ]),
+    )
+
+async def konu_menu_geri(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Konu menüsüne geri dön."""
+    query = update.callback_query
+    await query.answer()
+    butonlar = [
+        [InlineKeyboardButton("📝 TYT", callback_data="konu_sinav_TYT")],
+        [InlineKeyboardButton("📝 AYT", callback_data="konu_sinav_AYT")],
+        [InlineKeyboardButton("📝 KPSS", callback_data="konu_sinav_KPSS")],
+        [InlineKeyboardButton("🔙 Geri", callback_data="geri")],
+    ]
+    await query.edit_message_text(
+        "📚 *Konu Listesi*\n\nHangi sınav için?",
+        parse_mode="Markdown",
+        reply_markup=InlineKeyboardMarkup(butonlar),
+    )
+
 # ── Sabah bildirimi ───────────────────────────────────────────────────────────
 async def sabah_bildirimi(context: ContextTypes.DEFAULT_TYPE):
     veri = veri_yukle()
@@ -964,6 +1194,10 @@ def main():
     app.add_handler(CommandHandler("krono", krono_komutu))       # ← yeni komut
     app.add_handler(puan_conv)
     app.add_handler(CallbackQueryHandler(puan_menu, pattern="^puan_menu$"))
+    app.add_handler(CallbackQueryHandler(konu_menu, pattern="^konu_menu$"))                      # ← yeni
+    app.add_handler(CallbackQueryHandler(konu_menu_geri, pattern="^konu_menu_geri$"))            # ← yeni
+    app.add_handler(CallbackQueryHandler(konu_sinav_sec, pattern="^konu_sinav_"))                # ← yeni
+    app.add_handler(CallbackQueryHandler(konu_bolum_sec, pattern="^konu_bolum_"))                # ← yeni
     app.add_handler(CallbackQueryHandler(kronometre_menu, pattern="^kronometre_menu$"))  # ← yeni
     app.add_handler(CallbackQueryHandler(krono_baslat, pattern="^krono_baslat$"))        # ← yeni
     app.add_handler(CallbackQueryHandler(krono_durdur, pattern="^krono_durdur$"))        # ← yeni
