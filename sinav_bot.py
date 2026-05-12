@@ -91,38 +91,6 @@ AYT_BOLUMLER = [("Matematik",40),("Fizik",14),("Kimya",13),("Biyoloji",13),
                 ("Tarih-2",11),("Coğrafya-2",11),("Felsefe Grubu",12),("DKAB",6)]
 
 SINAV_SEC, BOLUM_GIR, OBP_GIR = range(3)
-# ── KONU LİSTELERİ (ÖSYM müfredatı) ─────────────────────────────────────────
-KONULAR = {
-    "TYT": {
-        "Türkçe": ["Sözcükte Anlam","Cümlede Anlam","Paragraf","Ses Bilgisi","Yazım Kuralları","Noktalama İşaretleri","Sözcük Türleri","Cümlenin Ögeleri","Fiilimsi","Anlatım Bozuklukları","Söz Sanatları"],
-        "Temel Matematik": ["Temel Kavramlar","Sayılar","Bölünebilme","EBOB-EKOK","Kesirler","Ondalık Sayılar","Yüzdeler","Oran-Orantı","Denklemler","Eşitsizlikler","Problemler","Kümeler","Fonksiyonlar","Permütasyon-Kombinasyon","Olasılık","İstatistik","Sayı Sistemleri"],
-        "Fen Bilimleri": ["Fizik: Kuvvet ve Hareket","Fizik: Enerji","Fizik: Dalgalar","Fizik: Elektrik","Kimya: Atom ve Periyodik Tablo","Kimya: Madde ve Özellikleri","Kimya: Kimyasal Tepkimeler","Kimya: Asit-Baz","Biyoloji: Hücre","Biyoloji: Canlıların Sınıflandırılması","Biyoloji: Sinir Sistemi","Biyoloji: Ekosistem"],
-        "Sosyal Bilimler": ["Tarih: İlk Uygarlıklar","Tarih: Osmanlı Devleti","Tarih: Kurtuluş Savaşı","Tarih: Cumhuriyet Dönemi","Coğrafya: Türkiye","Coğrafya: Nüfus ve Yerleşme","Coğrafya: İklim","Felsefe: Temel Kavramlar","Din: Hz. Muhammed","Din: İslam Kaynakları"],
-    },
-    "AYT": {
-        "Matematik": ["Trigonometri","Logaritma","Üslü Sayılar","Diziler","Limit","Türev","İntegral","Analitik Geometri","Doğru","Çember","Vektörler","Permütasyon-Kombinasyon","Olasılık","Karmaşık Sayılar","Matrisler"],
-        "Fizik": ["Kuvvet ve Hareket","Dinamik","İş-Enerji-Güç","Momentum","Tork ve Denge","Basit Harmonik Hareket","Dalgalar","Elektrik ve Manyetizma","Modern Fizik","Optik","Termodinamik","Çembersel Hareket"],
-        "Kimya": ["Atom Teorisi","Periyodik Sistem","Kimyasal Bağlar","Maddenin Halleri","Kimyasal Tepkimeler","Asit-Baz","Çözeltiler","Elektrokimya","Organik Kimya","Reaksiyon Hızı ve Denge","Termokimya"],
-        "Biyoloji": ["Hücre","Hücre Bölünmesi","Kalıtım","Genetik","Ekosistem","Sinir Sistemi","Endokrin Sistem","Duyu Organları","Boşaltım Sistemi","Üreme Sistemi","Fotosentez ve Solunum","Evrim"],
-        "Edebiyat": ["Şiir Bilgisi","Divan Edebiyatı","Halk Edebiyatı","Tanzimat","Servet-i Fünun","Milli Edebiyat","Cumhuriyet Dönemi","Roman ve Hikaye","Tiyatro","Deneme-Makale","Anlatım Biçimleri"],
-        "Tarih-1": ["Osmanlı Kuruluş","Osmanlı Yükselme","Osmanlı Duraklama","Osmanlı Dağılma","Fransız İhtilali","Sanayi Devrimi"],
-        "Coğrafya-1": ["Doğa ve İnsan","Türkiye Coğrafi Konumu","İklim Bilgisi","Türkiye İklimi","Nüfus Coğrafyası"],
-        "Tarih-2": ["20. Yüzyıl Başları","Kurtuluş Savaşı","Türk İnkılabı","İki Savaş Arası","2. Dünya Savaşı","Soğuk Savaş"],
-        "Coğrafya-2": ["Biyocoğrafya","Toprak Coğrafyası","Ekonomik Coğrafya","Türkiye Bölgeleri","Küreselleşme"],
-        "Felsefe Grubu": ["Felsefenin Alanları","Bilgi Felsefesi","Varlık Felsefesi","Ahlak Felsefesi","Sanat Felsefesi","Din Felsefesi","Siyaset Felsefesi","Mantık"],
-        "DKAB": ["Hz. Muhammed","Kuran-ı Kerim","İslam'da İbadet","Ahlak ve Değerler","Din ve Laiklik","Diğer Dinler"],
-    },
-    "KPSS": {
-        "Türkçe": ["Sözcükte Anlam","Cümlede Anlam","Paragraf","Dil Bilgisi","Anlatım Bozuklukları","Yazım Kuralları","Noktalama"],
-        "Matematik": ["Temel Sayılar","Kesirler","Yüzdeler","Oran-Orantı","Denklemler","Problemler","Geometri","Olasılık","İstatistik"],
-        "Tarih": ["Osmanlı Tarihi","Kurtuluş Savaşı","Türk İnkılabı","Atatürk İlkeleri","Cumhuriyet Tarihi"],
-        "Coğrafya": ["Türkiye Coğrafyası","İklim","Nüfus ve Yerleşme","Ekonomik Coğrafya","Bölgeler"],
-        "Vatandaşlık": ["Anayasa","Temel Haklar","Yasama","Yürütme","Yargı","Yerel Yönetimler","Seçim Sistemi"],
-        "Eğitim Bilimleri": ["Gelişim Psikolojisi","Öğrenme Psikolojisi","Öğretim Yöntemleri","Ölçme ve Değerlendirme","Rehberlik","Eğitim Yönetimi","Program Geliştirme"],
-    },
-}
-
-
 
 # ── Motivasyon ────────────────────────────────────────────────────────────────
 MOTIVASYON = [
@@ -198,7 +166,7 @@ def veri_yukle():
     if os.path.exists(VERI_DOSYASI):
         with open(VERI_DOSYASI, "r", encoding="utf-8") as f:
             return json.load(f)
-    return {"aboneler": [], "denemeler": {}}
+    return {"aboneler": [], "denemeler": {}, "kronometreler": {}}
 
 def veri_kaydet(veri):
     with open(VERI_DOSYASI, "w", encoding="utf-8") as f:
@@ -224,6 +192,40 @@ def deneme_kaydet(chat_id, tur, netler, puan, toplam_net):
 def kullanici_denemeleri(chat_id):
     veri = veri_yukle()
     return veri.get("denemeler", {}).get(str(chat_id), [])
+
+# ── Kronometre veri işlemleri ─────────────────────────────────────────────────
+def kronometre_yukle(chat_id):
+    """Kullanıcının kronometre verisini döndürür."""
+    veri = veri_yukle()
+    return veri.get("kronometreler", {}).get(str(chat_id), {
+        "durum": "durdu",        # "calisiyor" | "durdu"
+        "baslangic": None,       # ISO string — en son başlatıldığı an
+        "gecen_sure": 0,         # Daha önce birikmiş saniye (durdurma sonrası)
+        "son_bildirim_saati": 0, # Kaçıncı saat bildiriminde kaldık
+    })
+
+def kronometre_kaydet(chat_id, veri_k):
+    veri = veri_yukle()
+    if "kronometreler" not in veri:
+        veri["kronometreler"] = {}
+    veri["kronometreler"][str(chat_id)] = veri_k
+    veri_kaydet(veri)
+
+def kronometre_toplam_saniye(veri_k):
+    """Şu anki toplam geçen süreyi saniye cinsinden hesaplar."""
+    toplam = veri_k.get("gecen_sure", 0)
+    if veri_k.get("durum") == "calisiyor" and veri_k.get("baslangic"):
+        baslangic = datetime.fromisoformat(veri_k["baslangic"])
+        toplam += (simdi_tr() - baslangic).total_seconds()
+    return int(toplam)
+
+def sure_formatla(saniye):
+    """Saniyeyi SS:DD:ss formatına çevirir."""
+    s = int(saniye)
+    saat = s // 3600
+    dakika = (s % 3600) // 60
+    saniye_k = s % 60
+    return f"{saat:02d}:{dakika:02d}:{saniye_k:02d}"
 
 # ── Yardımcı fonksiyonlar ─────────────────────────────────────────────────────
 def gunun_ipucu():
@@ -283,7 +285,7 @@ def sinav_butonlari():
     b = [[InlineKeyboardButton(f"📌 {ad}", callback_data=f"sinav_{ad}")] for ad in SINAVLAR]
     b.append([InlineKeyboardButton("💡 Günün Taktikleri", callback_data="ipucu")])
     b.append([InlineKeyboardButton("🧮 Puan Hesapla", callback_data="puan_menu")])
-    b.append([InlineKeyboardButton("📖 Konu Listesi", callback_data="konu_menu")])
+    b.append([InlineKeyboardButton("⏱️ Kronometre", callback_data="kronometre_menu")])
     return InlineKeyboardMarkup(b)
 
 def detay_metni(ad, mot):
@@ -297,6 +299,37 @@ def tum_sinavlar():
     for ad, ts in sorted(SINAVLAR.items(), key=lambda x: x[1]):
         s.append(f"• *{ad}* — {ts.split()[0]}\n  {kalan_sure(ts)}")
     return "\n".join(s)
+
+# ── Kronometre klavye ─────────────────────────────────────────────────────────
+def kronometre_klavye(durum):
+    """Duruma göre kronometre butonlarını oluşturur."""
+    if durum == "calisiyor":
+        satirlar = [
+            [InlineKeyboardButton("⏸️ Durdur", callback_data="krono_durdur")],
+            [InlineKeyboardButton("🔄 Yenile", callback_data="krono_yenile")],
+            [InlineKeyboardButton("🗑️ Sıfırla", callback_data="krono_sifirla")],
+            [InlineKeyboardButton("🔙 Geri", callback_data="geri")],
+        ]
+    else:
+        satirlar = [
+            [InlineKeyboardButton("▶️ Başlat", callback_data="krono_baslat")],
+            [InlineKeyboardButton("🗑️ Sıfırla", callback_data="krono_sifirla")],
+            [InlineKeyboardButton("🔙 Geri", callback_data="geri")],
+        ]
+    return InlineKeyboardMarkup(satirlar)
+
+def kronometre_metni(chat_id):
+    """Kronometre ekran metnini oluşturur."""
+    veri_k = kronometre_yukle(chat_id)
+    toplam = kronometre_toplam_saniye(veri_k)
+    durum_ikon = "🟢 Çalışıyor" if veri_k["durum"] == "calisiyor" else "🔴 Durdu"
+    return (
+        f"⏱️ *Kronometre*\n\n"
+        f"```\n{sure_formatla(toplam)}\n```\n"
+        f"Durum: {durum_ikon}\n\n"
+        f"_Her 1 saat dolduğunda bildirim alırsın._\n"
+        f"🕐 _{saat_str()}_"
+    )
 
 # ── Admin bildirimi ───────────────────────────────────────────────────────────
 async def admin_bildir(context, mesaj):
@@ -416,60 +449,6 @@ async def analiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
         mesaj += "\n"
 
     await update.message.reply_text(mesaj, parse_mode="Markdown", reply_markup=sinav_butonlari())
-
-
-# ── Konu listesi ──────────────────────────────────────────────────────────────
-async def konu_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    await query.edit_message_text(
-        "📖 *Konu Listesi*\n\nHangi sınav için konu listesi görmek istersin?",
-        parse_mode="Markdown",
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("📝 TYT", callback_data="konular_TYT")],
-            [InlineKeyboardButton("📝 AYT", callback_data="konular_AYT")],
-            [InlineKeyboardButton("📝 KPSS", callback_data="konular_KPSS")],
-            [InlineKeyboardButton("🔙 Geri", callback_data="geri")],
-        ])
-    )
-
-async def konu_sinav_sec(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    sinav = query.data.replace("konular_", "")
-    bolumler = list(KONULAR[sinav].keys())
-    butonlar = [[InlineKeyboardButton(f"📚 {b}", callback_data=f"konu_{sinav}_{b}")] for b in bolumler]
-    butonlar.append([InlineKeyboardButton("🔙 Geri", callback_data="konu_menu")])
-    await query.edit_message_text(
-        f"📖 *{sinav} — Bölüm Seç*",
-        parse_mode="Markdown",
-        reply_markup=InlineKeyboardMarkup(butonlar)
-    )
-
-async def konu_bolum_goster(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    # callback_data: konu_TYT_Türkçe
-    parca = query.data[len("konu_"):]
-    # İlk _ den sonrası "TYT_Türkçe" gibi — ilk _ ile ayır
-    ilk_alt = parca.index("_")
-    sinav = parca[:ilk_alt]
-    bolum = parca[ilk_alt+1:]
-    konular = KONULAR.get(sinav, {}).get(bolum, [])
-    if not konular:
-        await query.edit_message_text("❌ Konu bulunamadı.")
-        return
-    mesaj = f"📚 *{sinav} — {bolum}*\n\n"
-    for i, k in enumerate(konular, 1):
-        mesaj += f"{i}. {k}\n"
-    await query.edit_message_text(
-        text=mesaj,
-        parse_mode="Markdown",
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔙 Bölümlere Dön", callback_data=f"konular_{sinav}")],
-            [InlineKeyboardButton("🏠 Ana Menü", callback_data="geri")],
-        ])
-    )
 
 # ── Geri sayım butonları ──────────────────────────────────────────────────────
 async def buton_tiklandi(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -663,7 +642,6 @@ async def hesaplama_sonuc(update: Update, context: ContextTypes.DEFAULT_TYPE):
             mesaj += f"📊 Sıralama (OBP'li): `{siralama_obp}`\n"
         mesaj += "\n_⚠️ Tahmindir, resmi değildir._"
 
-        # Deneme kaydet
         chat_id = update.effective_chat.id
         gecmis_d = kullanici_denemeleri(chat_id)
         onceki = [d for d in gecmis_d if d["tur"] == tur]
@@ -711,7 +689,6 @@ async def hesaplama_sonuc(update: Update, context: ContextTypes.DEFAULT_TYPE):
             mesaj += f"\n📋 OBP Katkısı: `+{obp_k}`\n"
         mesaj += "\n_⚠️ Tahmindir, resmi değildir._"
 
-        # Deneme kaydet
         chat_id = update.effective_chat.id
         gecmis_d = kullanici_denemeleri(chat_id)
         onceki = [d for d in gecmis_d if d["tur"] == tur]
@@ -743,6 +720,155 @@ async def hesap_iptal(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
     await update.message.reply_text("❌ İptal edildi.", reply_markup=sinav_butonlari())
     return ConversationHandler.END
+
+# ── Kronometre buton işleyicileri ─────────────────────────────────────────────
+async def kronometre_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Kronometre menüsünü açar."""
+    query = update.callback_query
+    await query.answer()
+    chat_id = query.from_user.id
+    veri_k = kronometre_yukle(chat_id)
+    await query.edit_message_text(
+        text=kronometre_metni(chat_id),
+        parse_mode="Markdown",
+        reply_markup=kronometre_klavye(veri_k["durum"])
+    )
+
+async def krono_baslat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Kronometreyi başlatır veya devam ettirir."""
+    query = update.callback_query
+    await query.answer("▶️ Başlatıldı!")
+    chat_id = query.from_user.id
+    veri_k = kronometre_yukle(chat_id)
+
+    if veri_k["durum"] == "calisiyor":
+        await query.answer("Zaten çalışıyor!")
+        return
+
+    # Başlat
+    veri_k["durum"] = "calisiyor"
+    veri_k["baslangic"] = simdi_tr().isoformat()
+
+    # Saatlik bildirim job'u başlat
+    job_name = f"krono_{chat_id}"
+    # Varsa önce kaldır
+    mevcut = context.job_queue.get_jobs_by_name(job_name)
+    for j in mevcut:
+        j.schedule_removal()
+
+    # Her 3600 saniyede bir bildirim gönder
+    context.job_queue.run_repeating(
+        krono_saat_bildirimi,
+        interval=3600,
+        first=3600,
+        name=job_name,
+        data={"chat_id": chat_id},
+        chat_id=chat_id,
+    )
+
+    kronometre_kaydet(chat_id, veri_k)
+    await query.edit_message_text(
+        text=kronometre_metni(chat_id),
+        parse_mode="Markdown",
+        reply_markup=kronometre_klavye("calisiyor")
+    )
+
+async def krono_durdur(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Kronometreyi durdurur, süreyi biriktirir."""
+    query = update.callback_query
+    await query.answer("⏸️ Durduruldu!")
+    chat_id = query.from_user.id
+    veri_k = kronometre_yukle(chat_id)
+
+    if veri_k["durum"] != "calisiyor":
+        return
+
+    # Geçen süreyi biriktir
+    baslangic = datetime.fromisoformat(veri_k["baslangic"])
+    veri_k["gecen_sure"] += (simdi_tr() - baslangic).total_seconds()
+    veri_k["durum"] = "durdu"
+    veri_k["baslangic"] = None
+
+    # Job'u durdur
+    job_name = f"krono_{chat_id}"
+    for j in context.job_queue.get_jobs_by_name(job_name):
+        j.schedule_removal()
+
+    kronometre_kaydet(chat_id, veri_k)
+    await query.edit_message_text(
+        text=kronometre_metni(chat_id),
+        parse_mode="Markdown",
+        reply_markup=kronometre_klavye("durdu")
+    )
+
+async def krono_sifirla(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Kronometreyi sıfırlar."""
+    query = update.callback_query
+    await query.answer("🗑️ Sıfırlandı!")
+    chat_id = query.from_user.id
+
+    # Job'u durdur
+    job_name = f"krono_{chat_id}"
+    for j in context.job_queue.get_jobs_by_name(job_name):
+        j.schedule_removal()
+
+    sifir = {
+        "durum": "durdu",
+        "baslangic": None,
+        "gecen_sure": 0,
+        "son_bildirim_saati": 0,
+    }
+    kronometre_kaydet(chat_id, sifir)
+    await query.edit_message_text(
+        text=kronometre_metni(chat_id),
+        parse_mode="Markdown",
+        reply_markup=kronometre_klavye("durdu")
+    )
+
+async def krono_yenile(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Kronometre ekranını günceller."""
+    query = update.callback_query
+    await query.answer("🔄 Güncellendi!")
+    chat_id = query.from_user.id
+    veri_k = kronometre_yukle(chat_id)
+    await query.edit_message_text(
+        text=kronometre_metni(chat_id),
+        parse_mode="Markdown",
+        reply_markup=kronometre_klavye(veri_k["durum"])
+    )
+
+async def krono_saat_bildirimi(context: ContextTypes.DEFAULT_TYPE):
+    """Her 1 saat dolunca kullanıcıya bildirim gönderir."""
+    chat_id = context.job.data["chat_id"]
+    veri_k = kronometre_yukle(chat_id)
+
+    if veri_k["durum"] != "calisiyor":
+        return
+
+    toplam = kronometre_toplam_saniye(veri_k)
+    saat_sayisi = toplam // 3600
+
+    mot = random.choice(MOTIVASYON)
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text=(
+            f"⏰ *{saat_sayisi} saat doldu!*\n\n"
+            f"⏱️ Toplam çalışma süresi: `{sure_formatla(toplam)}`\n\n"
+            f"{mot}\n\n"
+            f"_Kronometren hâlâ çalışıyor. Duraklatmak için /krono yaz._"
+        ),
+        parse_mode="Markdown"
+    )
+
+async def krono_komutu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """/krono komutuyla doğrudan kronometre ekranı açar."""
+    chat_id = update.effective_chat.id
+    veri_k = kronometre_yukle(chat_id)
+    await update.message.reply_text(
+        text=kronometre_metni(chat_id),
+        parse_mode="Markdown",
+        reply_markup=kronometre_klavye(veri_k["durum"])
+    )
 
 # ── Sabah bildirimi ───────────────────────────────────────────────────────────
 async def sabah_bildirimi(context: ContextTypes.DEFAULT_TYPE):
@@ -787,11 +913,14 @@ def main():
     app.add_handler(CommandHandler("istatistik", istatistik))
     app.add_handler(CommandHandler("gecmis", gecmis))
     app.add_handler(CommandHandler("analiz", analiz))
+    app.add_handler(CommandHandler("krono", krono_komutu))       # ← yeni komut
     app.add_handler(puan_conv)
     app.add_handler(CallbackQueryHandler(puan_menu, pattern="^puan_menu$"))
-    app.add_handler(CallbackQueryHandler(konu_menu, pattern="^konu_menu$"))
-    app.add_handler(CallbackQueryHandler(konu_sinav_sec, pattern="^konular_"))
-    app.add_handler(CallbackQueryHandler(konu_bolum_goster, pattern="^konu_"))
+    app.add_handler(CallbackQueryHandler(kronometre_menu, pattern="^kronometre_menu$"))  # ← yeni
+    app.add_handler(CallbackQueryHandler(krono_baslat, pattern="^krono_baslat$"))        # ← yeni
+    app.add_handler(CallbackQueryHandler(krono_durdur, pattern="^krono_durdur$"))        # ← yeni
+    app.add_handler(CallbackQueryHandler(krono_sifirla, pattern="^krono_sifirla$"))      # ← yeni
+    app.add_handler(CallbackQueryHandler(krono_yenile, pattern="^krono_yenile$"))        # ← yeni
     app.add_handler(CallbackQueryHandler(geri_don, pattern="^geri$"))
     app.add_handler(CallbackQueryHandler(ipucu_tiklandi, pattern="^ipucu$"))
     app.add_handler(CallbackQueryHandler(yenile_tiklandi, pattern="^yenile_"))
