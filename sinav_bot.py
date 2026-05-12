@@ -91,6 +91,38 @@ AYT_BOLUMLER = [("Matematik",40),("Fizik",14),("Kimya",13),("Biyoloji",13),
                 ("Tarih-2",11),("Coğrafya-2",11),("Felsefe Grubu",12),("DKAB",6)]
 
 SINAV_SEC, BOLUM_GIR, OBP_GIR = range(3)
+# ── KONU LİSTELERİ (ÖSYM müfredatı) ─────────────────────────────────────────
+KONULAR = {
+    "TYT": {
+        "Türkçe": ["Sözcükte Anlam","Cümlede Anlam","Paragraf","Ses Bilgisi","Yazım Kuralları","Noktalama İşaretleri","Sözcük Türleri","Cümlenin Ögeleri","Fiilimsi","Anlatım Bozuklukları","Söz Sanatları"],
+        "Temel Matematik": ["Temel Kavramlar","Sayılar","Bölünebilme","EBOB-EKOK","Kesirler","Ondalık Sayılar","Yüzdeler","Oran-Orantı","Denklemler","Eşitsizlikler","Problemler","Kümeler","Fonksiyonlar","Permütasyon-Kombinasyon","Olasılık","İstatistik","Sayı Sistemleri"],
+        "Fen Bilimleri": ["Fizik: Kuvvet ve Hareket","Fizik: Enerji","Fizik: Dalgalar","Fizik: Elektrik","Kimya: Atom ve Periyodik Tablo","Kimya: Madde ve Özellikleri","Kimya: Kimyasal Tepkimeler","Kimya: Asit-Baz","Biyoloji: Hücre","Biyoloji: Canlıların Sınıflandırılması","Biyoloji: Sinir Sistemi","Biyoloji: Ekosistem"],
+        "Sosyal Bilimler": ["Tarih: İlk Uygarlıklar","Tarih: Osmanlı Devleti","Tarih: Kurtuluş Savaşı","Tarih: Cumhuriyet Dönemi","Coğrafya: Türkiye","Coğrafya: Nüfus ve Yerleşme","Coğrafya: İklim","Felsefe: Temel Kavramlar","Din: Hz. Muhammed","Din: İslam Kaynakları"],
+    },
+    "AYT": {
+        "Matematik": ["Trigonometri","Logaritma","Üslü Sayılar","Diziler","Limit","Türev","İntegral","Analitik Geometri","Doğru","Çember","Vektörler","Permütasyon-Kombinasyon","Olasılık","Karmaşık Sayılar","Matrisler"],
+        "Fizik": ["Kuvvet ve Hareket","Dinamik","İş-Enerji-Güç","Momentum","Tork ve Denge","Basit Harmonik Hareket","Dalgalar","Elektrik ve Manyetizma","Modern Fizik","Optik","Termodinamik","Çembersel Hareket"],
+        "Kimya": ["Atom Teorisi","Periyodik Sistem","Kimyasal Bağlar","Maddenin Halleri","Kimyasal Tepkimeler","Asit-Baz","Çözeltiler","Elektrokimya","Organik Kimya","Reaksiyon Hızı ve Denge","Termokimya"],
+        "Biyoloji": ["Hücre","Hücre Bölünmesi","Kalıtım","Genetik","Ekosistem","Sinir Sistemi","Endokrin Sistem","Duyu Organları","Boşaltım Sistemi","Üreme Sistemi","Fotosentez ve Solunum","Evrim"],
+        "Edebiyat": ["Şiir Bilgisi","Divan Edebiyatı","Halk Edebiyatı","Tanzimat","Servet-i Fünun","Milli Edebiyat","Cumhuriyet Dönemi","Roman ve Hikaye","Tiyatro","Deneme-Makale","Anlatım Biçimleri"],
+        "Tarih-1": ["Osmanlı Kuruluş","Osmanlı Yükselme","Osmanlı Duraklama","Osmanlı Dağılma","Fransız İhtilali","Sanayi Devrimi"],
+        "Coğrafya-1": ["Doğa ve İnsan","Türkiye Coğrafi Konumu","İklim Bilgisi","Türkiye İklimi","Nüfus Coğrafyası"],
+        "Tarih-2": ["20. Yüzyıl Başları","Kurtuluş Savaşı","Türk İnkılabı","İki Savaş Arası","2. Dünya Savaşı","Soğuk Savaş"],
+        "Coğrafya-2": ["Biyocoğrafya","Toprak Coğrafyası","Ekonomik Coğrafya","Türkiye Bölgeleri","Küreselleşme"],
+        "Felsefe Grubu": ["Felsefenin Alanları","Bilgi Felsefesi","Varlık Felsefesi","Ahlak Felsefesi","Sanat Felsefesi","Din Felsefesi","Siyaset Felsefesi","Mantık"],
+        "DKAB": ["Hz. Muhammed","Kuran-ı Kerim","İslam'da İbadet","Ahlak ve Değerler","Din ve Laiklik","Diğer Dinler"],
+    },
+    "KPSS": {
+        "Türkçe": ["Sözcükte Anlam","Cümlede Anlam","Paragraf","Dil Bilgisi","Anlatım Bozuklukları","Yazım Kuralları","Noktalama"],
+        "Matematik": ["Temel Sayılar","Kesirler","Yüzdeler","Oran-Orantı","Denklemler","Problemler","Geometri","Olasılık","İstatistik"],
+        "Tarih": ["Osmanlı Tarihi","Kurtuluş Savaşı","Türk İnkılabı","Atatürk İlkeleri","Cumhuriyet Tarihi"],
+        "Coğrafya": ["Türkiye Coğrafyası","İklim","Nüfus ve Yerleşme","Ekonomik Coğrafya","Bölgeler"],
+        "Vatandaşlık": ["Anayasa","Temel Haklar","Yasama","Yürütme","Yargı","Yerel Yönetimler","Seçim Sistemi"],
+        "Eğitim Bilimleri": ["Gelişim Psikolojisi","Öğrenme Psikolojisi","Öğretim Yöntemleri","Ölçme ve Değerlendirme","Rehberlik","Eğitim Yönetimi","Program Geliştirme"],
+    },
+}
+
+
 
 # ── Motivasyon ────────────────────────────────────────────────────────────────
 MOTIVASYON = [
@@ -251,6 +283,7 @@ def sinav_butonlari():
     b = [[InlineKeyboardButton(f"📌 {ad}", callback_data=f"sinav_{ad}")] for ad in SINAVLAR]
     b.append([InlineKeyboardButton("💡 Günün Taktikleri", callback_data="ipucu")])
     b.append([InlineKeyboardButton("🧮 Puan Hesapla", callback_data="puan_menu")])
+    b.append([InlineKeyboardButton("📖 Konu Listesi", callback_data="konu_menu")])
     return InlineKeyboardMarkup(b)
 
 def detay_metni(ad, mot):
@@ -383,6 +416,60 @@ async def analiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
         mesaj += "\n"
 
     await update.message.reply_text(mesaj, parse_mode="Markdown", reply_markup=sinav_butonlari())
+
+
+# ── Konu listesi ──────────────────────────────────────────────────────────────
+async def konu_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text(
+        "📖 *Konu Listesi*\n\nHangi sınav için konu listesi görmek istersin?",
+        parse_mode="Markdown",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("📝 TYT", callback_data="konular_TYT")],
+            [InlineKeyboardButton("📝 AYT", callback_data="konular_AYT")],
+            [InlineKeyboardButton("📝 KPSS", callback_data="konular_KPSS")],
+            [InlineKeyboardButton("🔙 Geri", callback_data="geri")],
+        ])
+    )
+
+async def konu_sinav_sec(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    sinav = query.data.replace("konular_", "")
+    bolumler = list(KONULAR[sinav].keys())
+    butonlar = [[InlineKeyboardButton(f"📚 {b}", callback_data=f"konu_{sinav}_{b}")] for b in bolumler]
+    butonlar.append([InlineKeyboardButton("🔙 Geri", callback_data="konu_menu")])
+    await query.edit_message_text(
+        f"📖 *{sinav} — Bölüm Seç*",
+        parse_mode="Markdown",
+        reply_markup=InlineKeyboardMarkup(butonlar)
+    )
+
+async def konu_bolum_goster(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    # callback_data: konu_TYT_Türkçe
+    parca = query.data[len("konu_"):]
+    # İlk _ den sonrası "TYT_Türkçe" gibi — ilk _ ile ayır
+    ilk_alt = parca.index("_")
+    sinav = parca[:ilk_alt]
+    bolum = parca[ilk_alt+1:]
+    konular = KONULAR.get(sinav, {}).get(bolum, [])
+    if not konular:
+        await query.edit_message_text("❌ Konu bulunamadı.")
+        return
+    mesaj = f"📚 *{sinav} — {bolum}*\n\n"
+    for i, k in enumerate(konular, 1):
+        mesaj += f"{i}. {k}\n"
+    await query.edit_message_text(
+        text=mesaj,
+        parse_mode="Markdown",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔙 Bölümlere Dön", callback_data=f"konular_{sinav}")],
+            [InlineKeyboardButton("🏠 Ana Menü", callback_data="geri")],
+        ])
+    )
 
 # ── Geri sayım butonları ──────────────────────────────────────────────────────
 async def buton_tiklandi(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -702,6 +789,9 @@ def main():
     app.add_handler(CommandHandler("analiz", analiz))
     app.add_handler(puan_conv)
     app.add_handler(CallbackQueryHandler(puan_menu, pattern="^puan_menu$"))
+    app.add_handler(CallbackQueryHandler(konu_menu, pattern="^konu_menu$"))
+    app.add_handler(CallbackQueryHandler(konu_sinav_sec, pattern="^konular_"))
+    app.add_handler(CallbackQueryHandler(konu_bolum_goster, pattern="^konu_"))
     app.add_handler(CallbackQueryHandler(geri_don, pattern="^geri$"))
     app.add_handler(CallbackQueryHandler(ipucu_tiklandi, pattern="^ipucu$"))
     app.add_handler(CallbackQueryHandler(yenile_tiklandi, pattern="^yenile_"))
