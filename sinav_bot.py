@@ -734,6 +734,32 @@ async def kronometre_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=kronometre_klavye(veri_k["durum"])
     )
 
+async def krono_canli_guncelle(context: ContextTypes.DEFAULT_TYPE):
+    """Her 10 saniyede kronometre mesajını canlı günceller."""
+    data = context.job.data
+    chat_id = data["chat_id"]
+    message_id = data["message_id"]
+    veri_k = kronometre_yukle(chat_id)
+
+    # Kronometre durdurulduysa job'u sonlandır
+    if veri_k["durum"] != "calisiyor":
+        context.job.schedule_removal()
+        return
+
+    yeni_metin = kronometre_metni(chat_id)
+    try:
+        await context.bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=message_id,
+            text=yeni_metin,
+            parse_mode="Markdown",
+            reply_markup=kronometre_klavye("calisiyor"),
+        )
+    except Exception:
+        # Mesaj değişmediyse Telegram hata verir — görmezden gel
+        pass
+
+
 async def krono_baslat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Kronometreyi başlatır veya devam ettirir."""
     query = update.callback_query
@@ -742,35 +768,44 @@ async def krono_baslat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     veri_k = kronometre_yukle(chat_id)
 
     if veri_k["durum"] == "calisiyor":
-        await query.answer("Zaten çalışıyor!")
         return
 
     # Başlat
     veri_k["durum"] = "calisiyor"
     veri_k["baslangic"] = simdi_tr().isoformat()
+    kronometre_kaydet(chat_id, veri_k)
 
-    # Saatlik bildirim job'u başlat
-    job_name = f"krono_{chat_id}"
-    # Varsa önce kaldır
-    mevcut = context.job_queue.get_jobs_by_name(job_name)
-    for j in mevcut:
-        j.schedule_removal()
+    # Önce mesajı güncelle → message_id'yi al
+    mesaj = await query.edit_message_text(
+        text=kronometre_metni(chat_id),
+        parse_mode="Markdown",
+        reply_markup=kronometre_klavye("calisiyor"),
+    )
+    message_id = mesaj.message_id
 
-    # Her 3600 saniyede bir bildirim gönder
+    # Varolan job'ları temizle
+    for job_name in [f"krono_{chat_id}", f"krono_canli_{chat_id}"]:
+        for j in context.job_queue.get_jobs_by_name(job_name):
+            j.schedule_removal()
+
+    # Her 3600 saniyede saatlik bildirim
     context.job_queue.run_repeating(
         krono_saat_bildirimi,
         interval=3600,
         first=3600,
-        name=job_name,
+        name=f"krono_{chat_id}",
         data={"chat_id": chat_id},
         chat_id=chat_id,
     )
 
-    kronometre_kaydet(chat_id, veri_k)
-    await query.edit_message_text(
-        text=kronometre_metni(chat_id),
-        parse_mode="Markdown",
-        reply_markup=kronometre_klavye("calisiyor")
+    # Her 10 saniyede canlı güncelleme
+    context.job_queue.run_repeating(
+        krono_canli_guncelle,
+        interval=10,
+        first=10,
+        name=f"krono_canli_{chat_id}",
+        data={"chat_id": chat_id, "message_id": message_id},
+        chat_id=chat_id,
     )
 
 async def krono_durdur(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -789,10 +824,10 @@ async def krono_durdur(update: Update, context: ContextTypes.DEFAULT_TYPE):
     veri_k["durum"] = "durdu"
     veri_k["baslangic"] = None
 
-    # Job'u durdur
-    job_name = f"krono_{chat_id}"
-    for j in context.job_queue.get_jobs_by_name(job_name):
-        j.schedule_removal()
+    # Her iki job'u da durdur
+    for job_name in [f"krono_{chat_id}", f"krono_canli_{chat_id}"]:
+        for j in context.job_queue.get_jobs_by_name(job_name):
+            j.schedule_removal()
 
     kronometre_kaydet(chat_id, veri_k)
     await query.edit_message_text(
@@ -807,10 +842,10 @@ async def krono_sifirla(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer("🗑️ Sıfırlandı!")
     chat_id = query.from_user.id
 
-    # Job'u durdur
-    job_name = f"krono_{chat_id}"
-    for j in context.job_queue.get_jobs_by_name(job_name):
-        j.schedule_removal()
+    # Her iki job'u da temizle
+    for job_name in [f"krono_{chat_id}", f"krono_canli_{chat_id}"]:
+        for j in context.job_queue.get_jobs_by_name(job_name):
+            j.schedule_removal()
 
     sifir = {
         "durum": "durdu",
@@ -864,11 +899,24 @@ async def krono_komutu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """/krono komutuyla doğrudan kronometre ekranı açar."""
     chat_id = update.effective_chat.id
     veri_k = kronometre_yukle(chat_id)
-    await update.message.reply_text(
+    mesaj = await update.message.reply_text(
         text=kronometre_metni(chat_id),
         parse_mode="Markdown",
         reply_markup=kronometre_klavye(veri_k["durum"])
     )
+    # Kronometre çalışıyorsa bu yeni mesaj için canlı güncelleme başlat
+    if veri_k["durum"] == "calisiyor":
+        canli_job = f"krono_canli_{chat_id}"
+        for j in context.job_queue.get_jobs_by_name(canli_job):
+            j.schedule_removal()
+        context.job_queue.run_repeating(
+            krono_canli_guncelle,
+            interval=10,
+            first=10,
+            name=canli_job,
+            data={"chat_id": chat_id, "message_id": mesaj.message_id},
+            chat_id=chat_id,
+        )
 
 # ── Sabah bildirimi ───────────────────────────────────────────────────────────
 async def sabah_bildirimi(context: ContextTypes.DEFAULT_TYPE):
