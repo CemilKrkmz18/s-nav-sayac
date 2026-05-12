@@ -1,1 +1,1 @@
-web: python sinav_bot.py
+worker: python sinav_bot.py
