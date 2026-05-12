@@ -1,16 +1,16 @@
 import json
 import threading
-from flask import Flask
 import os
 import random
 from datetime import datetime, timezone, timedelta
+from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, CallbackQueryHandler,
     MessageHandler, filters, ContextTypes, ConversationHandler
 )
 
-# ── Flask web sunucusu ──────────────────────────────────────────────────────────
+# ── Flask (Render uyku modunu önler) ─────────────────────────────────────────
 flask_app = Flask(__name__)
 
 @flask_app.route("/")
@@ -21,6 +21,7 @@ def flask_calistir():
     port = int(os.environ.get("PORT", 8080))
     flask_app.run(host="0.0.0.0", port=port)
 
+# ── Ayarlar ───────────────────────────────────────────────────────────────────
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 ADMIN_ID = 1110751204
 BILDIRIM_SAATI = 8
@@ -31,13 +32,14 @@ TR = timezone(timedelta(hours=3))
 def simdi_tr():
     return datetime.now(TR).replace(tzinfo=None)
 
+# ── Sınavlar ──────────────────────────────────────────────────────────────────
 SINAVLAR = {
     "YKS TYT": "2026-06-21 10:15",
     "YKS AYT": "2026-06-22 10:15",
     "KPSS":    "2026-09-06 10:15",
 }
 
-# ── KATSAYILAR ────────────────────────────────────────────────────────────────
+# ── Puan katsayıları ──────────────────────────────────────────────────────────
 TYT_K = {"Türkçe": 2.83, "Sosyal Bilimler": 2.99, "Temel Matematik": 3.28, "Fen Bilimleri": 2.53}
 TYT_B = 145.47
 
@@ -54,10 +56,9 @@ SOZ_K = {"Türkçe": 1.13, "Sosyal Bilimler": 1.19, "Temel Matematik": 1.31, "Fe
          "Tarih-2": 3.80, "Coğrafya-2": 2.47, "Felsefe Grubu": 3.76, "DKAB": 2.36}
 SOZ_B = 129.61
 
-# OBP katkı katsayısı (ÖSYM 2025: 0.12 * OBP)
 OBP_KATSAYI = 0.12
 
-# ── SIRALAMA TABLOLARI ────────────────────────────────────────────────────────
+# ── Sıralama tabloları ────────────────────────────────────────────────────────
 TYT_S = [(490,1000),(480,3000),(470,6000),(460,12000),(450,22000),(440,40000),
          (430,65000),(420,100000),(410,145000),(400,200000),(390,265000),
          (380,340000),(370,425000),(360,520000),(350,620000),(340,730000),
@@ -83,6 +84,7 @@ def tahmini_siralama(puan, tablo):
             return f"~{siralama:,}".replace(",", ".")
     return "—"
 
+# ── Bölümler ──────────────────────────────────────────────────────────────────
 TYT_BOLUMLER = [("Türkçe",40),("Sosyal Bilimler",20),("Temel Matematik",40),("Fen Bilimleri",20)]
 AYT_BOLUMLER = [("Matematik",40),("Fizik",14),("Kimya",13),("Biyoloji",13),
                 ("Edebiyat",24),("Tarih-1",10),("Coğrafya-1",6),
@@ -90,7 +92,7 @@ AYT_BOLUMLER = [("Matematik",40),("Fizik",14),("Kimya",13),("Biyoloji",13),
 
 SINAV_SEC, BOLUM_GIR, OBP_GIR = range(3)
 
-# ── MOTİVASYON (kısa tutuldu — karakter limiti için) ─────────────────────────
+# ── Motivasyon ────────────────────────────────────────────────────────────────
 MOTIVASYON = [
     "💪 Her dakika yarının başarısına bir adım!",
     "🔥 Vazgeçmek yok, sen başarabilirsin!",
@@ -104,6 +106,7 @@ MOTIVASYON = [
     "🌈 Bugünün yorgunluğu yarının gururudur!",
 ]
 
+# ── İpuçları ──────────────────────────────────────────────────────────────────
 IPUCLARI = {
     "YKS TYT": [
         "📐 Her gün en az 20 temel matematik sorusu çöz.",
@@ -158,15 +161,18 @@ IPUCLARI = {
     ],
 }
 
-
-# ── Veri ─────────────────────────────────────────────────────────────────────
+# ── Veri işlemleri ────────────────────────────────────────────────────────────
 def veri_yukle():
     if os.path.exists(VERI_DOSYASI):
         with open(VERI_DOSYASI, "r", encoding="utf-8") as f:
             return json.load(f)
     return {"aboneler": [], "denemeler": {}}
 
-def deneme_kaydet(chat_id: int, tur: str, netler: dict, puan: float, toplam_net: float):
+def veri_kaydet(veri):
+    with open(VERI_DOSYASI, "w", encoding="utf-8") as f:
+        json.dump(veri, f, ensure_ascii=False, indent=2)
+
+def deneme_kaydet(chat_id, tur, netler, puan, toplam_net):
     veri = veri_yukle()
     if "denemeler" not in veri:
         veri["denemeler"] = {}
@@ -183,14 +189,11 @@ def deneme_kaydet(chat_id: int, tur: str, netler: dict, puan: float, toplam_net:
     veri["denemeler"][key] = veri["denemeler"][key][-20:]
     veri_kaydet(veri)
 
-def kullanici_denemeleri(chat_id: int) -> list:
+def kullanici_denemeleri(chat_id):
     veri = veri_yukle()
     return veri.get("denemeler", {}).get(str(chat_id), [])
 
-def veri_kaydet(veri):
-    with open(VERI_DOSYASI, "w", encoding="utf-8") as f:
-        json.dump(veri, f, ensure_ascii=False, indent=2)
-
+# ── Yardımcı fonksiyonlar ─────────────────────────────────────────────────────
 def gunun_ipucu():
     gun_no = simdi_tr().timetuple().tm_yday
     satirlar = ["💡 *Günün Taktikleri*\n"]
@@ -223,9 +226,8 @@ def tyt_puan(netler):
     return round(TYT_B + sum(netler[b] * TYT_K.get(b, 0) for b in netler), 2)
 
 def obp_katki(obp_degeri):
-    """OBP 50-100 arası not, 250-500 arası direkt OBP olabilir."""
     if 50 <= obp_degeri <= 100:
-        obp = obp_degeri * 5  # diploma notunu OBP'ye çevir
+        obp = obp_degeri * 5
     else:
         obp = obp_degeri
     return round(OBP_KATSAYI * obp, 2)
@@ -252,11 +254,6 @@ def sinav_butonlari():
     return InlineKeyboardMarkup(b)
 
 def detay_metni(ad, mot):
-    tarih = SINAVLAR[ad].split(" ")[0]
-    # Kısa format — inline mesaj karakter limitine uygun
-    return f"📌 *{ad}*\n📅 {tarih}\n{kalan_sure(ad if ad in SINAVLAR else ad)}\n\n{mot}\n\n🔄 _{saat_str()}_"
-
-def detay_metni2(ad, mot):
     tarih_str = SINAVLAR[ad]
     tarih = tarih_str.split(" ")[0]
     sure = kalan_sure(tarih_str)
@@ -268,22 +265,19 @@ def tum_sinavlar():
         s.append(f"• *{ad}* — {ts.split()[0]}\n  {kalan_sure(ts)}")
     return "\n".join(s)
 
-
-# ── Admin ─────────────────────────────────────────────────────────────────────
+# ── Admin bildirimi ───────────────────────────────────────────────────────────
 async def admin_bildir(context, mesaj):
     try:
         await context.bot.send_message(chat_id=ADMIN_ID, text=mesaj, parse_mode="Markdown")
     except Exception as e:
         print(f"Admin bildirimi hatası: {e}")
 
-
 # ── Komutlar ──────────────────────────────────────────────────────────────────
 async def baslat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     veri = veri_yukle()
     chat_id = update.effective_chat.id
     user = update.effective_user
-    yeni = chat_id not in veri["aboneler"]
-    if yeni:
+    if chat_id not in veri["aboneler"]:
         veri["aboneler"].append(chat_id)
         veri_kaydet(veri)
         karsilama = f"👋 *Hoş geldin!* Her sabah {BILDIRIM_SAATI:02d}:{BILDIRIM_DAKIKA:02d}'de bildirim alacaksın.\n\n"
@@ -325,6 +319,70 @@ async def istatistik(update: Update, context: ContextTypes.DEFAULT_TYPE):
     veri = veri_yukle()
     await update.message.reply_text(f"👥 Toplam abone: *{len(veri['aboneler'])}*", parse_mode="Markdown")
 
+async def gecmis(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    denemeler = kullanici_denemeleri(chat_id)
+    if not denemeler:
+        await update.message.reply_text(
+            "📭 Henüz kayıtlı deneme yok.\n🧮 Puan hesapla butonundan deneme gir!",
+            reply_markup=sinav_butonlari())
+        return
+    son5 = denemeler[-5:][::-1]
+    mesaj = "📋 *Son Denemeler*\n\n"
+    for i, d in enumerate(son5, 1):
+        mesaj += f"*{i}.* {d['tarih']} — {d['tur']}\n"
+        mesaj += f"   Net: `{d['toplam_net']}` | Puan: `{d['puan']}`\n\n"
+    await update.message.reply_text(mesaj, parse_mode="Markdown", reply_markup=sinav_butonlari())
+
+async def analiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    denemeler = kullanici_denemeleri(chat_id)
+    if len(denemeler) < 2:
+        await update.message.reply_text(
+            "📊 Analiz için en az 2 deneme gerekli!\n🧮 Puan hesapla butonundan deneme gir.",
+            reply_markup=sinav_butonlari())
+        return
+
+    mesaj = "📊 *Gelişim Analizi*\n\n"
+    for tur in ["TYT", "AYT"]:
+        tur_denemeleri = [d for d in denemeler if d["tur"] == tur]
+        if len(tur_denemeleri) < 2:
+            continue
+        mesaj += f"*{tur} Analizi ({len(tur_denemeleri)} deneme):*\n"
+        en_iyi = max(tur_denemeleri, key=lambda x: x["toplam_net"])
+        en_kotu = min(tur_denemeleri, key=lambda x: x["toplam_net"])
+        mesaj += f"🏅 En iyi: `{en_iyi['toplam_net']}` net ({en_iyi['tarih'][:10]})\n"
+        mesaj += f"📉 En düşük: `{en_kotu['toplam_net']}` net ({en_kotu['tarih'][:10]})\n"
+
+        if len(tur_denemeleri) >= 4:
+            son3 = tur_denemeleri[-3:]
+            onceki3 = tur_denemeleri[-6:-3] if len(tur_denemeleri) >= 6 else tur_denemeleri[:-3]
+            son3_ort = sum(d["toplam_net"] for d in son3) / len(son3)
+            onceki3_ort = sum(d["toplam_net"] for d in onceki3) / len(onceki3)
+            fark = son3_ort - onceki3_ort
+            trend = f"📈 +{fark:.1f}" if fark > 0 else f"📉 {fark:.1f}"
+            mesaj += f"Trend: {trend} net (son 3 ortalama)\n"
+
+        son3_d = tur_denemeleri[-3:]
+        bolum_ortalamalari = {}
+        for d in son3_d:
+            for bolum, net_val in d.get("netler", {}).items():
+                if bolum not in bolum_ortalamalari:
+                    bolum_ortalamalari[bolum] = []
+                bolum_ortalamalari[bolum].append(net_val)
+
+        if bolum_ortalamalari:
+            soru_sayilari = dict(TYT_BOLUMLER + AYT_BOLUMLER)
+            normalize = {}
+            for b, vals in bolum_ortalamalari.items():
+                ort = sum(vals) / len(vals)
+                maks = soru_sayilari.get(b, 40)
+                normalize[b] = ort / maks
+            en_zayif = min(normalize, key=normalize.get)
+            mesaj += f"⚠️ Zayıf bölüm: *{en_zayif}* (bu hafta önceliklendir!)\n"
+        mesaj += "\n"
+
+    await update.message.reply_text(mesaj, parse_mode="Markdown", reply_markup=sinav_butonlari())
 
 # ── Geri sayım butonları ──────────────────────────────────────────────────────
 async def buton_tiklandi(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -337,7 +395,7 @@ async def buton_tiklandi(update: Update, context: ContextTypes.DEFAULT_TYPE):
     mot = random.choice(MOTIVASYON)
     mot_i = MOTIVASYON.index(mot)
     await query.edit_message_text(
-        text=detay_metni2(ad, mot), parse_mode="Markdown",
+        text=detay_metni(ad, mot), parse_mode="Markdown",
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔄 Yenile", callback_data=f"yenile_{ad}_{mot_i}")],
             [InlineKeyboardButton("🔙 Geri", callback_data="geri")]
@@ -363,7 +421,7 @@ async def yenile_tiklandi(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     mot = MOTIVASYON[mot_i]
     await query.edit_message_text(
-        text=detay_metni2(ad, mot), parse_mode="Markdown",
+        text=detay_metni(ad, mot), parse_mode="Markdown",
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔄 Yenile", callback_data=f"yenile_{ad}_{mot_i}")],
             [InlineKeyboardButton("🔙 Geri", callback_data="geri")]
@@ -375,8 +433,7 @@ async def geri_don(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     await query.edit_message_text("Hangi sınavı görmek istersin?", reply_markup=sinav_butonlari())
 
-
-# ── PUAN HESAPLAMA ────────────────────────────────────────────────────────────
+# ── Puan hesaplama ────────────────────────────────────────────────────────────
 async def puan_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -399,15 +456,14 @@ async def hesap_sinav_sec(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "sinav_turu": tur,
         "bolum_index": 0,
         "netler": {},
-        # AYT için TYT ve AYT bölümleri ayrı tutulur
         "tyt_bolumler": TYT_BOLUMLER,
         "ayt_bolumler": AYT_BOLUMLER,
-        "asama": "TYT",  # hangi aşamada olduğumuzu tutar
+        "asama": "TYT",
     })
     b, s = TYT_BOLUMLER[0]
     await query.edit_message_text(
         f"📝 *{tur} Hesaplama*\n\n"
-        f"{'📋 Önce TYT bölümlerini gir:' if tur == 'AYT' else ''}\n"
+        f"{'📋 Önce TYT bölümlerini gir:\n' if tur == 'AYT' else ''}"
         f"TYT 1/{len(TYT_BOLUMLER)}: *{b}* ({s} soru)\n\n"
         f"Doğru yanlış gir: `25 5`",
         parse_mode="Markdown"
@@ -426,13 +482,7 @@ async def bolum_gir(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tur = context.user_data["sinav_turu"]
     asama = context.user_data["asama"]
     i = context.user_data["bolum_index"]
-
-    # Hangi bölüm listesindeyiz
-    if asama == "TYT":
-        bolumler = context.user_data["tyt_bolumler"]
-    else:
-        bolumler = context.user_data["ayt_bolumler"]
-
+    bolumler = context.user_data["tyt_bolumler"] if asama == "TYT" else context.user_data["ayt_bolumler"]
     b, s = bolumler[i]
 
     if d + y > s:
@@ -442,10 +492,8 @@ async def bolum_gir(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["netler"][b] = net(d, y)
     context.user_data["bolum_index"] += 1
 
-    # TYT bölümleri bitti, AYT'ye geçiş var mı?
     if asama == "TYT" and context.user_data["bolum_index"] >= len(context.user_data["tyt_bolumler"]):
         if tur == "AYT":
-            # AYT bölümlerine geç
             context.user_data["asama"] = "AYT"
             context.user_data["bolum_index"] = 0
             nb, ns = context.user_data["ayt_bolumler"][0]
@@ -459,7 +507,6 @@ async def bolum_gir(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return BOLUM_GIR
         else:
-            # Sadece TYT — OBP'ye geç
             await update.message.reply_text(
                 f"✅ *{b}*: {context.user_data['netler'][b]:.2f} net\n\n"
                 "✅ Tüm bölümler tamamlandı!\n\n"
@@ -471,7 +518,6 @@ async def bolum_gir(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return OBP_GIR
 
-    # AYT bölümleri de bitti
     if asama == "AYT" and context.user_data["bolum_index"] >= len(context.user_data["ayt_bolumler"]):
         await update.message.reply_text(
             f"✅ *{b}*: {context.user_data['netler'][b]:.2f} net\n\n"
@@ -484,7 +530,6 @@ async def bolum_gir(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return OBP_GIR
 
-    # Sonraki bölümü göster
     nb, ns = bolumler[context.user_data["bolum_index"]]
     etiket = "TYT" if asama == "TYT" else "AYT"
     await update.message.reply_text(
@@ -502,7 +547,6 @@ async def obp_gir(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except ValueError:
         await update.message.reply_text("❌ Sayı gir. Örnek: `85` veya `0`", parse_mode="Markdown")
         return OBP_GIR
-
     context.user_data["obp"] = obp_val
     return await hesaplama_sonuc(update, context)
 
@@ -520,8 +564,7 @@ async def hesaplama_sonuc(update: Update, context: ContextTypes.DEFAULT_TYPE):
         siralama = tahmini_siralama(puan, TYT_S)
         siralama_obp = tahmini_siralama(puan_obp, TYT_S)
 
-        mesaj = f"🎯 *TYT Sonucu*\n\n"
-        mesaj += f"📊 *Netler:*\n"
+        mesaj = "🎯 *TYT Sonucu*\n\n📊 *Netler:*\n"
         for b, n in tyt_n.items():
             mesaj += f"• {b}: `{n:.2f}`\n"
         mesaj += f"\n📈 Toplam Net: `{toplam:.2f}`\n"
@@ -531,7 +574,26 @@ async def hesaplama_sonuc(update: Update, context: ContextTypes.DEFAULT_TYPE):
             mesaj += f"\n📋 OBP Katkısı: `+{obp_k}`\n"
             mesaj += f"🏆 Yerleştirme Puanı: `{puan_obp}`\n"
             mesaj += f"📊 Sıralama (OBP'li): `{siralama_obp}`\n"
-        mesaj += f"\n_⚠️ Tahmindir, resmi değildir._"
+        mesaj += "\n_⚠️ Tahmindir, resmi değildir._"
+
+        # Deneme kaydet
+        chat_id = update.effective_chat.id
+        gecmis_d = kullanici_denemeleri(chat_id)
+        onceki = [d for d in gecmis_d if d["tur"] == tur]
+        if onceki:
+            en_iyi = max(onceki, key=lambda x: x["toplam_net"])
+            if toplam > en_iyi["toplam_net"]:
+                mesaj += f"\n\n🏅 *Yeni rekor! Önceki: {en_iyi['toplam_net']:.2f} net*"
+        bir_hafta_once = simdi_tr().replace(day=max(1, simdi_tr().day - 7))
+        gecen_hafta = [d for d in onceki if datetime.strptime(d["tarih"], "%Y-%m-%d %H:%M") >= bir_hafta_once]
+        if gecen_hafta:
+            gecen_net = sum(d["toplam_net"] for d in gecen_hafta) / len(gecen_hafta)
+            fark = toplam - gecen_net
+            if fark > 0:
+                mesaj += f"\n📈 Geçen haftaya göre *+{fark:.1f} net* artış!"
+            elif fark < 0:
+                mesaj += f"\n📉 Geçen haftaya göre *{fark:.1f} net* düşüş."
+        deneme_kaydet(chat_id, tur, {b: round(n, 2) for b, n in tyt_n.items()}, puan, toplam)
 
     else:
         tyt_n = {b: netler.get(b, 0) for b, _ in TYT_BOLUMLER}
@@ -542,14 +604,14 @@ async def hesaplama_sonuc(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ayt_top = sum(ayt_n.values())
         tablolar = {"SAY": SAY_S, "EA": EA_S, "SÖZ": SOZ_S}
 
-        mesaj = f"🎯 *AYT Sonucu*\n\n"
+        mesaj = "🎯 *AYT Sonucu*\n\n"
         mesaj += f"📊 *TYT Netleri:* (toplam: `{tyt_top:.2f}`, puan: `{tyt_p}`)\n"
         for b, n in tyt_n.items():
             mesaj += f"• {b}: `{n:.2f}`\n"
         mesaj += f"\n📊 *AYT Netleri:* (toplam: `{ayt_top:.2f}`)\n"
         for b, n in ayt_n.items():
             mesaj += f"• {b}: `{n:.2f}`\n"
-        mesaj += f"\n🏆 *Puanlar ve Sıralamalar:*\n"
+        mesaj += "\n🏆 *Puanlar ve Sıralamalar:*\n"
         for tur_adi, p in puanlar.items():
             s = tahmini_siralama(p, tablolar[tur_adi])
             p_obp = round(p + obp_k, 2)
@@ -560,42 +622,29 @@ async def hesaplama_sonuc(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 mesaj += f"  OBP'li: `{p_obp}` → Sıra: `{s_obp}`\n"
         if obp_val > 0:
             mesaj += f"\n📋 OBP Katkısı: `+{obp_k}`\n"
-        mesaj += f"\n_⚠️ Tahmindir, resmi değildir._"
+        mesaj += "\n_⚠️ Tahmindir, resmi değildir._"
 
-    # ── Deneme kaydet ve karşılaştır ──
-    chat_id = update.effective_chat.id
-    if tur == "TYT":
-        kayit_puan = puan
-        kayit_net = toplam
-        kayit_netler = {b: round(n, 2) for b, n in tyt_n.items()}
-    else:
-        kayit_puan = puanlar.get("SAY", puanlar.get("EA", 0))
-        kayit_net = ayt_top
-        kayit_netler = {b: round(n, 2) for b, n in {**tyt_n, **ayt_n}.items()}
+        # Deneme kaydet
+        chat_id = update.effective_chat.id
+        gecmis_d = kullanici_denemeleri(chat_id)
+        onceki = [d for d in gecmis_d if d["tur"] == tur]
+        if onceki:
+            en_iyi = max(onceki, key=lambda x: x["toplam_net"])
+            if ayt_top > en_iyi["toplam_net"]:
+                mesaj += f"\n\n🏅 *Yeni rekor! Önceki: {en_iyi['toplam_net']:.2f} net*"
+        bir_hafta_once = simdi_tr().replace(day=max(1, simdi_tr().day - 7))
+        gecen_hafta = [d for d in onceki if datetime.strptime(d["tarih"], "%Y-%m-%d %H:%M") >= bir_hafta_once]
+        if gecen_hafta:
+            gecen_net = sum(d["toplam_net"] for d in gecen_hafta) / len(gecen_hafta)
+            fark = ayt_top - gecen_net
+            if fark > 0:
+                mesaj += f"\n📈 Geçen haftaya göre *+{fark:.1f} net* artış!"
+            elif fark < 0:
+                mesaj += f"\n📉 Geçen haftaya göre *{fark:.1f} net* düşüş."
+        deneme_kaydet(chat_id, tur, {b: round(n, 2) for b, n in {**tyt_n, **ayt_n}.items()},
+                      puanlar.get("SAY", 0), ayt_top)
 
-    gecmis = kullanici_denemeleri(chat_id)
-    onceki = [d for d in gecmis if d["tur"] == tur]
-
-    # Rekor kontrolü
-    if onceki:
-        en_iyi = max(onceki, key=lambda x: x["toplam_net"])
-        if kayit_net > en_iyi["toplam_net"]:
-            mesaj += f"\n\n🏅 *Yeni rekor! Önceki: {en_iyi['toplam_net']:.2f} net*"
-
-    # Geçen haftayla karşılaştır
-    bir_hafta_once = simdi_tr().replace(day=max(1, simdi_tr().day - 7))
-    gecen_hafta = [d for d in onceki if datetime.strptime(d["tarih"], "%Y-%m-%d %H:%M") >= bir_hafta_once]
-    if gecen_hafta:
-        gecen_net = sum(d["toplam_net"] for d in gecen_hafta) / len(gecen_hafta)
-        fark = kayit_net - gecen_net
-        if fark > 0:
-            mesaj += f"\n📈 Geçen haftaya göre *+{fark:.1f} net* artış!"
-        elif fark < 0:
-            mesaj += f"\n📉 Geçen haftaya göre *{fark:.1f} net* düşüş."
-
-    deneme_kaydet(chat_id, tur, kayit_netler, kayit_puan, kayit_net)
-    mesaj += f"\n\n_/gecmis → geçmiş denemeler | /analiz → gelişim_"
-
+    mesaj += "\n\n_/gecmis → geçmiş denemeler | /analiz → gelişim_"
     await update.message.reply_text(
         mesaj, parse_mode="Markdown",
         reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Ana Menü", callback_data="geri")]])
@@ -603,88 +652,10 @@ async def hesaplama_sonuc(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
     return ConversationHandler.END
 
-async def gecmis(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.effective_chat.id
-    denemeler = kullanici_denemeleri(chat_id)
-    if not denemeler:
-        await update.message.reply_text(
-            "📭 Henüz kayıtlı deneme yok.\n🧮 Puan hesapla butonundan deneme gir!",
-            reply_markup=sinav_butonlari()
-        )
-        return
-    son5 = denemeler[-5:][::-1]
-    mesaj = "📋 *Son Denemeler*\n\n"
-    for i, d in enumerate(son5, 1):
-        mesaj += f"*{i}.* {d['tarih']} — {d['tur']}\n"
-        mesaj += f"   Net: `{d['toplam_net']}` | Puan: `{d['puan']}`\n\n"
-    await update.message.reply_text(mesaj, parse_mode="Markdown",
-        reply_markup=sinav_butonlari())
-
-async def analiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.effective_chat.id
-    denemeler = kullanici_denemeleri(chat_id)
-    if len(denemeler) < 2:
-        await update.message.reply_text(
-            "📊 Analiz için en az 2 deneme gerekli!\n🧮 Puan hesapla butonundan deneme gir.",
-            reply_markup=sinav_butonlari()
-        )
-        return
-
-    mesaj = "📊 *Gelişim Analizi*\n\n"
-
-    # TYT ve AYT ayrı analiz
-    for tur in ["TYT", "AYT"]:
-        tur_denemeleri = [d for d in denemeler if d["tur"] == tur]
-        if len(tur_denemeleri) < 2:
-            continue
-
-        mesaj += f"*{tur} Analizi ({len(tur_denemeleri)} deneme):*\n"
-
-        # En iyi ve en kötü
-        en_iyi = max(tur_denemeleri, key=lambda x: x["toplam_net"])
-        en_kotu = min(tur_denemeleri, key=lambda x: x["toplam_net"])
-        mesaj += f"🏅 En iyi: `{en_iyi['toplam_net']}` net ({en_iyi['tarih'][:10]})\n"
-        mesaj += f"📉 En düşük: `{en_kotu['toplam_net']}` net ({en_kotu['tarih'][:10]})\n"
-
-        # Son 3 ortalama vs önceki 3
-        if len(tur_denemeleri) >= 4:
-            son3 = tur_denemeleri[-3:]
-            onceki3 = tur_denemeleri[-6:-3] if len(tur_denemeleri) >= 6 else tur_denemeleri[:-3]
-            son3_ort = sum(d["toplam_net"] for d in son3) / len(son3)
-            onceki3_ort = sum(d["toplam_net"] for d in onceki3) / len(onceki3)
-            fark = son3_ort - onceki3_ort
-            trend = f"📈 +{fark:.1f}" if fark > 0 else f"📉 {fark:.1f}"
-            mesaj += f"Trend: {trend} net (son 3 ortalama)\n"
-
-        # Zayıf bölüm analizi (son 3 deneme)
-        son3_d = tur_denemeleri[-3:]
-        bolum_ortalamalari = {}
-        for d in son3_d:
-            for bolum, net_val in d.get("netler", {}).items():
-                if bolum not in bolum_ortalamalari:
-                    bolum_ortalamalari[bolum] = []
-                bolum_ortalamalari[bolum].append(net_val)
-
-        if bolum_ortalamalari:
-            # Soru sayısına göre normalize et
-            soru_sayilari = dict(TYT_BOLUMLER + AYT_BOLUMLER)
-            normalize = {}
-            for b, vals in bolum_ortalamalari.items():
-                ort = sum(vals) / len(vals)
-                maks = soru_sayilari.get(b, 40)
-                normalize[b] = ort / maks  # yüzde doluluk
-
-            en_zayif = min(normalize, key=normalize.get)
-            mesaj += f"⚠️ Zayıf bölüm: *{en_zayif}* (bu hafta önceliklendir!)\n"
-
-        mesaj += "\n"
-
-    await update.message.reply_text(mesaj, parse_mode="Markdown",
-        reply_markup=sinav_butonlari())
+async def hesap_iptal(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
     await update.message.reply_text("❌ İptal edildi.", reply_markup=sinav_butonlari())
     return ConversationHandler.END
-
 
 # ── Sabah bildirimi ───────────────────────────────────────────────────────────
 async def sabah_bildirimi(context: ContextTypes.DEFAULT_TYPE):
@@ -707,7 +678,6 @@ async def sabah_bildirimi(context: ContextTypes.DEFAULT_TYPE):
     await admin_bildir(context,
         f"📬 *Sabah bildirimi!*\n✅ Başarılı: *{basarili}*\n"
         f"👥 Toplam: *{len(veri['aboneler'])}*\n🕐 {saat_str()}")
-
 
 # ── Ana fonksiyon ─────────────────────────────────────────────────────────────
 def main():
@@ -749,4 +719,3 @@ if __name__ == "__main__":
     t = threading.Thread(target=flask_calistir, daemon=True)
     t.start()
     main()
- 
